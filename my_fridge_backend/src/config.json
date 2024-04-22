@@ -1,0 +1,21 @@
+{
+	"port": 9001,
+	"databaseFileName": "main-dev.db3",
+	"dataVersion": "v2",
+	"dbSchemaMigrationInit": "CREATE TABLE IF NOT EXISTS schema_history (id INTEGER PRIMARY KEY, version TEXT, applied_at TEXT);",
+	"dbSchemaMigration": {
+		"v1": "CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY, email TEXT, password TEXT);",
+		"v2": "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, ean TEXT);",
+		"v3": "CREATE TABLE IF NOT EXISTS homes (id INTEGER PRIMARY KEY, account_id INTEGER, FOREIGN KEY(account_id) REFERENCES accounts(id));",
+		"v4": "CREATE TABLE IF NOT EXISTS home_items (home_id INTEGER, item_id INTEGER, PRIMARY KEY(home_id, item_id), FOREIGN KEY(home_id) REFERENCES home(id), FOREIGN KEY(item_id) REFERENCES items(id));",
+		"v5": "ALTER TABLE accounts ADD COLUMN nanoId TEXT;",
+		"v6": "ALTER TABLE homes ADD COLUMN nanoId TEXT;",
+		"v7": "ALTER TABLE items ADD COLUMN image TEXT;",
+		"v8": "ALTER TABLE items ADD COLUMN external_id TEXT;",
+		"v9": "ALTER TABLE items ADD COLUMN brand TEXT;",
+		"v10": "ALTER TABLE items ADD COLUMN description TEXT;",
+		"v11": "ALTER TABLE items ADD COLUMN vendor TEXT;",
+		"v12": "ALTER TABLE items ADD COLUMN categories TEXT;",
+		"v13": "ALTER TABLE items ADD COLUMN dataVersion TEXT DEFAULT 'v1';"
+	}
+}
