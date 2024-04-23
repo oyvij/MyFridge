@@ -1,16 +1,12 @@
 <template>
-  <div>
-    <FridgeView />
+  <div id="app">
+    <router-view />
   </div>
 </template>
 
 <script>
-import FridgeView from './views/FridgeView.vue'
 export default {
   name: 'App',
-  components: {
-    FridgeView
-  }
 }
 </script>
 
