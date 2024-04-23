@@ -1,226 +1,216 @@
-'use strict'
+'use strict';
 require('babel-polyfill');
 const nanoId = require('nanoid');
+import { Account, Home, Item, HomeItem } from '../models';
+import { jwtAuth } from '../jwt';
+import { Router } from 'express';
 
-import e, { Router } from 'express';
+export default ({ config }) => {
+    let api = Router().use(jwtAuth);
 
-export default ({ config, db }) => {
-    let api = Router();
+    let wrap = fn => (...args) => fn(...args).catch(args[2]);
 
-    let wrap = fn => (...args) => fn(...args).catch(args[2])
-
-    // create home for account
     api.post('/create', wrap(async (req, res) => {
-        const { accountId } = req.body;
-        const home = await db.get("SELECT * FROM HOMES WHERE account_id = ?", accountId);
-        if (home) {
-            res.json({ message: "Home already exists." });
-            return;
+        const AccountId = req.account.id;  // Extract AccountId from token
+
+        try {
+            // Check if a Home already exists for the given AccountId
+            const home = await Home.findOne({ where: { AccountId } });
+            if (home) {
+                res.json({ message: 'Home already exists.' });
+            } else {
+                // Create a new Home with the AccountId extracted from the token
+                await Home.create({ AccountId });
+                res.json({ message: 'Home created.' });
+            }
+        } catch (error) {
+            console.error('Error creating home:', error);
+            res.status(500).json({ message: 'Internal server error.' });
         }
-        await db.run("INSERT INTO HOMES (account_id, nanoId) VALUES (?, ?)", accountId, nanoId.nanoid());
-        res.json({ message: "Home created." });
     }));
 
-    // get home by account id
-    api.get('/account-id/:accountId', wrap(async (req, res) => {
-        const { accountId } = req.params;
-        const home = await db.get("SELECT * FROM HOMES WHERE account_id = ?", accountId);
-        if (home) {
-            // get home_items in home
-            const homeItems = await db.all("SELECT * FROM HOME_ITEMS WHERE home_id = ?", home.id);
-            const items = await Promise.all(homeItems.map(async homeItem => {
-                return await db.get("SELECT * FROM ITEMS WHERE id = ?", homeItem.item_id);
-            }));
-            // merge items with homeItems
-            homeItems.forEach((homeItem, index) => {
-                homeItem.item = items[index];
-            });
-            res.json({ home, homeItems });
+    api.get('/', wrap(async (req, res) => {
+        const AccountId = req.account.id;  // Extract AccountId from the JWT
 
-        } else {
-            res.json({ message: "Home not found." });
+        try {
+            // Fetch the Home associated with the AccountId
+            const home = await Home.findOne({ where: { AccountId } });
+            if (home) {
+                // If a home exists, fetch all related HomeItems and their corresponding Items
+                let homeItems = await HomeItem.findAll({
+                    where: { HomeId: home.id }, // Assuming homeId is the correct column name
+                    include: [{ model: Item }] // Ensure Item is associated in your model definitions
+                });
+                res.json({ home, homeItems });
+            } else {
+                res.json({ message: 'Home not found.' });
+            }
+        } catch (error) {
+            console.error('Error fetching home:', error);
+            res.status(500).json({ message: 'Internal server error.' });
         }
     }));
 
     api.post('/add-item', wrap(async (req, res) => {
-        const { ean, homeNanoId } = req.body;
-        // verify barcode is valid 13 or 8 digits
+        const { ean } = req.body;
+        try {
+            if (ean.length !== 13 && ean.length !== 8) {
+                res.json({ message: 'Invalid EAN.' });
+                return;
+            }
 
-        if (ean.length !== 13 && ean.length !== 8) {
-            res.json({ message: "Invalid EAN." });
-            return;
-        }
-        // verify ean
-        if (!ean) {
-            res.json({ message: "EAN is required." });
-            return;
-        }
-        // verify home nano id
-        if (!homeNanoId) {
-            res.json({ message: "Home nano id is required." });
-            return;
-        }
+            let item = await Item.findOne({ where: { ean } });
 
-
-        // get item from home
-        let item = await db.get("SELECT * FROM ITEMS WHERE ean = ?", ean);
-
-        // check if item already exists in home
-        if (item) {
-            const home = await db.get("SELECT * FROM HOMES WHERE nanoId = ?", homeNanoId);
-            if (home) {
-                const homeItem = await db.get("SELECT * FROM HOME_ITEMS WHERE home_id = ? AND item_id = ?", home.id, item.id);
-                if (homeItem) {
-                    res.json({ message: "Item already exists in home." });
-                    return;
+            if (!item || item.dataVersion !== config.dataVersion) {
+                const response = await config.kassalClient.get(`/api/v1/products/ean/${ean}`);
+                const data = response && response.data && response.data.data || null;
+                if (data && data.products && data.products.length > 0) {
+                    const product = data.products[0];
+                    const categories = product.category.map(category => category.name).join(',');
+                    if (item && item.dataVersion !== config.dataVersion) {
+                        await Item.destroy({ where: { ean } });
+                    }
+                    item = await Item.create({
+                        ean,
+                        name: product.name,
+                        image: product.image,
+                        external_id: product.id,
+                        brand: product.brand,
+                        description: product.description,
+                        vendor: product.vendor,
+                        categories,
+                        dataVersion: config.dataVersion
+                    });
                 }
             }
-        }
 
-        if (!item || item.dataVersion !== config.dataVersion) {
-            // get item from kassal api
-            const res = await config.kassalClient.get(`/api/v1/products/ean/${ean}`);
-            const data = res && res.data && res.data.data || null;
-            if (data && data.products && data.products.length > 0) {
-                // add item to db
-                const product = data.products[0];
-                const categories = product.category.map(category => category.name).join(",");
-
-                if (item && item.dataVersion !== config.dataVersion) {
-                    // delete old item
-                    await db.run("DELETE FROM ITEMS WHERE ean = ?", ean);
-                }
-                await db.run("INSERT INTO ITEMS (ean, name, image, external_id, brand, description, vendor, categories, dataVersion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", data.ean, product.name, product.image, product.id, product.brand, product.description, product.vendor, categories, config.dataVersion);
-                item = await db.get("SELECT * FROM ITEMS WHERE ean = ?", ean);
-            }
-        }
-        if (item) {
-            // get home by nanoId
-            const home = await db.get("SELECT * FROM HOMES WHERE nanoId = ?", homeNanoId);
-            if (home) {
-                // add item to home
-                await db.run("INSERT INTO HOME_ITEMS (home_id, item_id) VALUES (?, ?)", home.id, item.id);
-                res.json({ message: "Item added to home." });
-            } else {
-                res.json({ message: "Home not found." });
-            }
-        } else {
-            res.json({ message: "Item not found." });
-        }
-    }));
-
-    // remove item from home by ean and home nano id
-    api.post('/remove-item', wrap(async (req, res) => {
-        const { ean, homeNanoId } = req.body;
-        // verify barcode is valid 13 or 8 digits
-        if (ean.length !== 13 && ean.length !== 8) {
-            res.json({ message: "Invalid EAN." });
-            return;
-        }
-        // verify ean
-        if (!ean) {
-            res.json({ message: "EAN is required." });
-            return;
-        }
-        // verify home nano id
-        if (!homeNanoId) {
-            res.json({ message: "Home nano id is required." });
-            return;
-        }
-        // get item from home
-        const item = await db.get("SELECT * FROM ITEMS WHERE ean = ?", ean);
-        if (item) {
-            // get home by nanoId
-            const home = await db.get("SELECT * FROM HOMES WHERE nanoId = ?", homeNanoId);
-            if (home) {
-                // remove item from home
-                await db.run("DELETE FROM HOME_ITEMS WHERE home_id = ? AND item_id = ?", home.id, item.id);
-                res.json({ message: "Item removed from home." });
-            } else {
-                res.json({ message: "Home not found." });
-            }
-        } else {
-            res.json({ message: "Item not found." });
-        }
-    }));
-
-    // get check if item is in home by ean and home nano id
-    api.post('/check-item', wrap(async (req, res) => {
-        const { ean, homeNanoId } = req.body;
-        // verify barcode is valid 13 or 8 digits
-        if (ean.length !== 13 && ean.length !== 8) {
-            res.json({ message: "Invalid EAN." });
-            return;
-        }
-        // verify ean
-        if (!ean) {
-            res.json({ message: "EAN is required." });
-            return;
-        }
-        // verify home nano id
-        if (!homeNanoId) {
-            res.json({ message: "Home nano id is required." });
-            return;
-        }
-        // get item from home
-        let item = await db.get("SELECT * FROM ITEMS WHERE ean = ?", ean);
-
-        if (!item || item.dataVersion !== config.dataVersion) {
-            // get item from kassal api
-            const res = await config.kassalClient.get(`/api/v1/products/ean/${ean}`);
-            const data = res && res.data && res.data.data || null;
-            if (data && data.products && data.products.length > 0) {
-                // add item to db
-                const product = data.products[0];
-                const categories = product.category.map(category => category.name).join(",");
-
-                if (item && item.dataVersion !== config.dataVersion) {
-                    // delete old item
-                    await db.run("DELETE FROM ITEMS WHERE ean = ?", ean);
-                }
-                await db.run("INSERT INTO ITEMS (ean, name, image, external_id, brand, description, vendor, categories, dataVersion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", data.ean, product.name, product.image, product.id, product.brand, product.description, product.vendor, categories, config.dataVersion);
-                item = await db.get("SELECT * FROM ITEMS WHERE ean = ?", ean);
-            }
-        }
-
-        if (item) {
-            // get home by nanoId
-            const home = await db.get("SELECT * FROM HOMES WHERE nanoId = ?", homeNanoId);
-            if (home) {
-                // get all items in home
-                const homeItems = await db.all("SELECT * FROM HOME_ITEMS WHERE home_id = ?", home.id);
-                // check if item is in home
-                const homeItem = homeItems.find(homeItem => homeItem.item_id === item.id);
-                let response = { message: "", exactMatchHomeItem: null, similarItems: [], currentItem: null }
-                if (homeItem) {
-                    homeItem.item = item;
-                    response.message = "Item is in home.";
-                    response.exactMatchHomeItem = homeItem;
+            // Assuming a single home per account
+            const home = await Home.findOne({ where: { AccountId: req.account.id } });
+            if (home && item) {
+                const existingHomeItem = await HomeItem.findOne({ where: { HomeId: home.id, ItemId: item.id } });
+                if (existingHomeItem) {
+                    res.json({ message: 'Item already exists in home.' });
                 } else {
-                    response.message = "Item is not in home.";
+                    await HomeItem.create({ HomeId: home.id, ItemId: item.id });
+                    res.json({ message: 'Item added to home.' });
                 }
-
-
-                // for each home item, get item and check if they have similar categories
-                const items = await Promise.all(homeItems.map(async homeItem => {
-                    return await db.get("SELECT * FROM ITEMS WHERE id = ?", homeItem.item_id);
-                }));
-                let similarItems = items.filter(homeItem => homeItem.categories.split(",").some(category => item.categories.split(",").includes(category)));
-                response.similarItems = similarItems.filter(similarItem => similarItem.ean !== item.ean);
-
-                if (response.similarItems.length > 0) {
-                    response.message = "Item is not in home, but similar items where found.";
-                }
-                response.currentItem = item;
-                res.json(response);
-
             } else {
-                res.json({ message: "Home not found." });
+                res.json({ message: 'Home not found.' });
             }
-        } else {
-            res.json({ message: "Item not found." });
+        } catch (error) {
+            console.error('Error adding item to home:', error);
+            res.status(500).json({ message: 'Internal server error.' });
         }
     }));
+
+
+    api.post('/remove-item', wrap(async (req, res) => {
+        const { ean } = req.body;
+
+        try {
+            if (ean.length !== 13 && ean.length !== 8) {
+                res.json({ message: 'Invalid EAN.' });
+                return;
+            }
+
+            const item = await Item.findOne({ where: { ean } });
+            if (!item) {
+                res.json({ message: 'Item not found.' });
+                return;
+            }
+
+            // Assuming a single home per account
+            const home = await Home.findOne({ where: { AccountId: req.account.id } });
+            if (!home) {
+                res.json({ message: 'Home not found.' });
+                return;
+            }
+
+            // Check if the item exists in the home
+            const existingHomeItem = await HomeItem.findOne({ where: { HomeId: home.id, ItemId: item.id } });
+            if (!existingHomeItem) {
+                res.json({ message: 'Item not found in home.' });
+                return;
+            }
+
+            // Remove the item from the home
+            await HomeItem.destroy({ where: { id: existingHomeItem.id } });
+            res.json({ message: 'Item removed from home.' });
+
+        } catch (error) {
+            console.error('Error removing item from home:', error);
+            res.status(500).json({ message: 'Internal server error.' });
+        }
+    }));
+
+
+    api.post('/check-item', wrap(async (req, res) => {
+        const { ean } = req.body;
+
+        try {
+            if (ean.length !== 13 && ean.length !== 8) {
+                res.json({ message: 'Invalid EAN.' });
+                return;
+            }
+
+            let item = await Item.findOne({ where: { ean } });
+            if (!item || item.dataVersion !== config.dataVersion) {
+                const response = await config.kassalClient.get(`/api/v1/products/ean/${ean}`);
+                const data = response && response.data && response.data.data || null;
+                if (data && data.products && data.products.length > 0) {
+                    const product = data.products[0];
+                    const categories = product.category.map(category => category.name).join(',');
+                    if (item && item.dataVersion !== config.dataVersion) {
+                        await Item.destroy({ where: { ean } });
+                    }
+                    item = await Item.create({
+                        ean,
+                        name: product.name,
+                        image: product.image,
+                        external_id: product.id,
+                        brand: product.brand,
+                        description: product.description,
+                        vendor: product.vendor,
+                        categories,
+                        dataVersion: config.dataVersion
+                    });
+                }
+            }
+
+            if (item) {
+                // Assuming a single home per account
+                const home = await Home.findOne({ where: { AccountId: req.account.id } });
+                if (home) {
+                    const homeItems = await HomeItem.findAll({ where: { HomeId: home.id } });
+                    const homeItem = homeItems.find(homeItem => homeItem.ItemId === item.id);
+                    let response = { message: '', exactMatchHomeItem: null, similarItems: [], currentItem: item };
+                    if (homeItem) {
+                        response.message = 'Item is in home.';
+                        response.exactMatchHomeItem = homeItem;
+                    } else {
+                        response.message = 'Item is not in home.';
+                    }
+                    const items = await Promise.all(homeItems.map(async homeItem => {
+                        return await Item.findOne({ where: { id: homeItem.ItemId } });
+                    }));
+                    let similarItems = items.filter(similarItem => similarItem.categories.split(',').some(category => item.categories.split(',').includes(category)));
+                    response.similarItems = similarItems.filter(similarItem => similarItem.ean !== item.ean);
+                    if (response.similarItems.length > 0) {
+                        response.message = 'Item is not in home, but similar items were found.';
+                    }
+                    res.json(response);
+                } else {
+                    res.json({ message: 'Home not found.' });
+                }
+            } else {
+                res.json({ message: 'Item not found.' });
+            }
+        } catch (error) {
+            console.error('Error checking item in home:', error);
+            res.status(500).json({ message: 'Internal server error.' });
+        }
+    }));
+
 
     return api;
-}
+};

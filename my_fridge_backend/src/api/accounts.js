@@ -1,61 +1,102 @@
-'use strict'
-require('babel-polyfill');
+'use strict';
 const bcrypt = require('bcrypt');
-const nanoId = require('nanoid');
+const jwt = require('jsonwebtoken');
 const verifier = require('email-verify');
-
+import { Account } from '../models';
 import { Router } from 'express';
 
-export default ({ config, db }) => {
+export default ({ config }) => {
     let api = Router();
 
-    let wrap = fn => (...args) => fn(...args).catch(args[2])
+    let wrap = fn => (...args) => fn(...args).catch(args[2]);
+
+    // Utility function to generate a JWT
+    const generateAccessToken = account => {
+        return jwt.sign({ id: account.id, email: account.email }, config.secret, {
+            expiresIn: '24h' // token will expire in 24 hours
+        });
+    };
+
+    const generateRefreshToken = (account) => {
+        return jwt.sign({ id: account.id, email: account.email }, config.refreshTokenSecret, {
+            expiresIn: '7d'  // longer expiration for refresh token
+        });
+    };
 
     api.post('/register', wrap(async (req, res) => {
         const { email, password, password2 } = req.body;
 
         if (password !== password2) {
-            res.json({ message: "Passwords do not match." });
+            res.status(400).json({ message: "Passwords do not match." });
             return;
         }
 
         // Verify the email
-        verifier.verify(email, (err, info) => {
+        verifier.verify(email, async (err, info) => {
             if (err) {
-                res.json({ message: "Invalid email." });
+                res.status(400).json({ message: "Invalid email." });
                 return;
             }
-        });
+        })
 
-        const account = await db.get("SELECT * FROM ACCOUNTS WHERE email = ?", email);
+        const account = await Account.findOne({ where: { email } });
         if (account) {
-            res.json({ message: "Account already exists." });
+            res.status(409).json({ message: "Account already exists." });
             return;
         }
         // Hash the password
         const hash = await bcrypt.hash(password, 10);
         // Insert the account into the database
-        await db.run("INSERT INTO ACCOUNTS (email, password, nanoId) VALUES (?, ?, ?)", email, hash, nanoId.nanoid());
+        await Account.create({ email, password: hash });
+        // Generate a token
         res.json({ message: "Account created." });
     }));
 
     api.post('/login', wrap(async (req, res) => {
         const { email, password } = req.body;
         // Get the account from the database
-        const account = await db.get("SELECT * FROM ACCOUNTS WHERE email = ?", email);
-        // Check if the account exists
-        if (account) {
-            // Compare the password
-            const match = await bcrypt.compare(password, account.password);
-            if (match) {
-                res.json({ accountTokenId: account.nanoId, message: "Login successful." });
-            } else {
-                res.json({ message: "Incorrect password." });
-            }
+        const account = await Account.findOne({ where: { email } });
+        if (!account) {
+            res.status(404).json({ message: "Account not found." });
+            return;
+        }
+        // Compare the password
+        const match = await bcrypt.compare(password, account.password);
+        if (match) {
+            const accessToken = generateAccessToken(account);
+            const refreshToken = generateRefreshToken(account);
+
+            // Optionally save the refresh token in the database or a secure cache
+            // e.g., await saveRefreshToken(account.id, refreshToken);
+
+            // Send the tokens to the client
+            res.json({
+                accessToken,
+                refreshToken,
+                message: "Login successful."
+            });
         } else {
-            res.json({ message: "Incorrect email." });
+            res.status(401).json({ message: "Incorrect password." });
         }
     }));
 
+    api.post('/refresh_token', async (req, res) => {
+        const { refreshToken } = req.cookies;  // Assuming the refresh token is stored in cookies
+        if (!refreshToken) return res.status(401).json({ message: "No refresh token provided." });
+
+        try {
+            const payload = jwt.verify(refreshToken, config.refreshTokenSecret);
+            const accountId = payload.id;  // Extract user ID or other identifiers from the payload
+            // Optionally check against a stored value in the database to ensure the refresh token is still valid
+
+            const newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
+            res.json({ accessToken: newAccessToken });
+        } catch (err) {
+            return res.status(403).json({ message: "Invalid refresh token." });
+        }
+    });
+
     return api;
-}
+};
+
+

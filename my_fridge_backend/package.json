@@ -53,10 +53,13 @@
     "dotenv": "^16.4.5",
     "email-verify": "^0.2.1",
     "express": "^4.13.3",
+    "jsonwebtoken": "^9.0.2",
     "nanoid": "3.0.0",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
     "resource-router-middleware": "^0.5.1",
-    "sqlite": "^2.2.4"
-},
+    "sequelize": "^6.37.3"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
