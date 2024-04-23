@@ -184,7 +184,10 @@ export default ({ config }) => {
                 // Assuming a single home per account
                 const home = await Home.findOne({ where: { AccountId: req.account.id } });
                 if (home) {
-                    const homeItems = await HomeItem.findAll({ where: { HomeId: home.id } });
+                    const homeItems = await HomeItem.findAll({
+                        where: { HomeId: home.id }, // Assuming homeId is the correct column name
+                        include: [{ model: Item }] // Ensure Item is associated in your model definitions
+                    });
                     const homeItem = homeItems.find(homeItem => homeItem.ItemId === item.id);
                     let response = { message: '', exactMatchHomeItem: null, similarItems: [], currentItem: item };
                     if (homeItem) {
