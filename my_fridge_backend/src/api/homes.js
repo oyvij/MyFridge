@@ -66,7 +66,10 @@ export default ({ config }) => {
                 const data = response && response.data && response.data.data || null;
                 if (data && data.products && data.products.length > 0) {
                     const product = data.products[0];
-                    const categories = product.category.map(category => category.name).join(',');
+                    let categories = ""
+                    if (product.category && product.category.length > 0) {
+                        categories = product.category.map(category => category.name).join(',');
+                    }
                     if (item && item.dataVersion !== config.dataVersion) {
                         await Item.destroy({ where: { ean } });
                     }
