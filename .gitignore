@@ -6,3 +6,5 @@
 /my_fridge_backend/node_modules
 /my_fridge_backend/.npmrc
 /my_fridge_frontend/.npmrc
+/deploy-backend.sh
+/deploy-frontend.sh
