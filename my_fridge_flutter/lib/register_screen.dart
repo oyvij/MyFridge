@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_fridge_flutter/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,12 +13,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _email = '';
   String _password = '';
   String _password2 = '';
+  final ApiService _apiService = ApiService();
 
-  void _register() {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
-      // Perform registration logic here
-      print('Email: $_email, Password: $_password, Password2: $_password2');
-      // Navigate to another screen or show a success message
+      _formKey.currentState!.save();
+      bool registered =
+          await _apiService.registerAccount(_email, _password, _password2);
+      if (registered) {
+        // Navigate to a success screen or show a success message
+        print('Registration successful');
+      } else {
+        // Handle registration failure
+        print('Registration failed');
+      }
     }
   }
 

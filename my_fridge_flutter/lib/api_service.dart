@@ -20,8 +20,19 @@ class ApiService {
         }),
       );
 
-      var data = jsonDecode(response.body);
-      return data;
+      if (response.statusCode == 200) {
+        // Check response from the server
+        var data = jsonDecode(response.body);
+        // Assuming the server returns a success message
+        if (data['success']) {
+          return true;
+        }
+        return false;
+      } else {
+        // Error handling
+        print('Failed to register user: ${response.body}');
+        return false;
+      }
     } catch (e) {
       print('Caught error: $e');
       return false;
