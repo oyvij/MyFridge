@@ -5,7 +5,8 @@ class ApiService {
   final String baseUrl =
       'https://my-fridge-backend-8f9f809b9530.herokuapp.com'; // Replace with your actual URL
 
-  Future<bool> registerUser(String email, String password) async {
+  Future<bool> registerAccount(
+      String email, String password, String password2) async {
     try {
       var response = await http.post(
         Uri.parse('$baseUrl/register'), // Adjust path as per your API
@@ -15,6 +16,7 @@ class ApiService {
         body: jsonEncode(<String, String>{
           'email': email,
           'password': password,
+          'password2': password2,
         }),
       );
 
