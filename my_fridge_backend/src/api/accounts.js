@@ -73,8 +73,8 @@ export default ({ config }) => {
             res.json({
                 accessToken,
                 refreshToken,
-                message: "Login successful."
-            }, status: true);
+                message: "Login successful.", status: true
+            });
         } else {
             res.status(401).json({ message: "Incorrect password.", status: false });
         }
