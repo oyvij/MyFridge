@@ -27,21 +27,21 @@ export default ({ config }) => {
         const { email, password, password2 } = req.body;
 
         if (password !== password2) {
-            res.status(400).json({ fail: "Passwords do not match.", status: false });
+            res.status(400).json({ message: "Passwords do not match.", success: false });
             return;
         }
 
         // Verify the email
         verifier.verify(email, async (err, info) => {
             if (err) {
-                res.status(400).json({ fail: "Invalid email.", status: false });
+                res.status(400).json({ message: "Invalid email.", success: false });
                 return;
             }
         })
 
         const account = await Account.findOne({ where: { email } });
         if (account) {
-            res.status(409).json({ fail: "Account already exists.", status: false });
+            res.status(409).json({ message: "Account already exists.", success: false });
             return;
         }
         // Hash the password
@@ -49,7 +49,7 @@ export default ({ config }) => {
         // Insert the account into the database
         await Account.create({ email, password: hash });
         // Generate a token
-        res.json({ success: "Account created.", status: true });
+        res.json({ message: "Account created.", success: true });
     }));
 
     api.post('/login', wrap(async (req, res) => {
@@ -57,7 +57,7 @@ export default ({ config }) => {
         // Get the account from the database
         const account = await Account.findOne({ where: { email } });
         if (!account) {
-            res.status(404).json({ fail: "Account not found.", status: false });
+            res.status(404).json({ message: "Account not found.", success: false });
             return;
         }
         // Compare the password
@@ -73,16 +73,16 @@ export default ({ config }) => {
             res.json({
                 accessToken,
                 refreshToken,
-                success: "Login successful."
+                message: "Login successful.", success: true
             });
         } else {
-            res.status(401).json({ fail: "Incorrect password.", status: false });
+            res.status(401).json({ message: "Incorrect password.", success: false });
         }
     }));
 
     api.post('/refresh_token', async (req, res) => {
         const { refreshToken } = req.cookies;  // Assuming the refresh token is stored in cookies
-        if (!refreshToken) return res.status(401).json({ fail: "No refresh token provided.", status: false });
+        if (!refreshToken) return res.status(401).json({ message: "No refresh token provided.", success: false });
 
         try {
             const payload = jwt.verify(refreshToken, config.refreshTokenSecret);
@@ -92,7 +92,7 @@ export default ({ config }) => {
             const newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
             res.json({ accessToken: newAccessToken });
         } catch (err) {
-            return res.status(403).json({ fail: "Invalid refresh token.", status: false });
+            return res.status(403).json({ message: "Invalid refresh token.", success: false });
         }
     });
 
