@@ -27,21 +27,21 @@ export default ({ config }) => {
         const { email, password, password2 } = req.body;
 
         if (password !== password2) {
-            res.status(400).json({ message: "Passwords do not match." });
+            res.status(400).json({ message: "Passwords do not match.", status: false });
             return;
         }
 
         // Verify the email
         verifier.verify(email, async (err, info) => {
             if (err) {
-                res.status(400).json({ message: "Invalid email." });
+                res.status(400).json({ message: "Invalid email.", status: false });
                 return;
             }
         })
 
         const account = await Account.findOne({ where: { email } });
         if (account) {
-            res.status(409).json({ message: "Account already exists." });
+            res.status(409).json({ message: "Account already exists.", status: false });
             return;
         }
         // Hash the password
@@ -49,7 +49,7 @@ export default ({ config }) => {
         // Insert the account into the database
         await Account.create({ email, password: hash });
         // Generate a token
-        res.json({ message: "Account created." });
+        res.json({ message: "Account created.", status: true });
     }));
 
     api.post('/login', wrap(async (req, res) => {
@@ -57,7 +57,7 @@ export default ({ config }) => {
         // Get the account from the database
         const account = await Account.findOne({ where: { email } });
         if (!account) {
-            res.status(404).json({ message: "Account not found." });
+            res.status(404).json({ message: "Account not found.", status: false });
             return;
         }
         // Compare the password
@@ -74,15 +74,15 @@ export default ({ config }) => {
                 accessToken,
                 refreshToken,
                 message: "Login successful."
-            });
+            }, status: true);
         } else {
-            res.status(401).json({ message: "Incorrect password." });
+            res.status(401).json({ message: "Incorrect password.", status: false });
         }
     }));
 
     api.post('/refresh_token', async (req, res) => {
         const { refreshToken } = req.cookies;  // Assuming the refresh token is stored in cookies
-        if (!refreshToken) return res.status(401).json({ message: "No refresh token provided." });
+        if (!refreshToken) return res.status(401).json({ message: "No refresh token provided.", status: false });
 
         try {
             const payload = jwt.verify(refreshToken, config.refreshTokenSecret);
@@ -92,7 +92,7 @@ export default ({ config }) => {
             const newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
             res.json({ accessToken: newAccessToken });
         } catch (err) {
-            return res.status(403).json({ message: "Invalid refresh token." });
+            return res.status(403).json({ message: "Invalid refresh token.", status: false });
         }
     });
 
