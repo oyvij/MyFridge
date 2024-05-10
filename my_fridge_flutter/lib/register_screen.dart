@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_fridge_flutter/api_service.dart';
+import 'package:my_fridge_flutter/api/base_response.dart';
+import 'package:my_fridge_flutter/api/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,23 +11,22 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
   String _email = '';
   String _password = '';
   String _password2 = '';
-  final ApiService _apiService = ApiService();
+  String _message = '';
+  bool _success = false;
 
   void _register() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      bool registered =
+      BaseResponse response =
           await _apiService.registerAccount(_email, _password, _password2);
-      if (registered) {
-        // Navigate to a success screen or show a success message
-        print('Registration successful');
-      } else {
-        // Handle registration failure
-        print('Registration failed');
-      }
+      setState(() {
+        _message = response.message;
+        _success = response.success;
+      });
     }
   }
 
@@ -65,7 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value ?? '',
+                onChanged: (value) => _password = value,
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -81,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password2 = value ?? '',
+                onChanged: (value) => _password2 = value,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -92,6 +92,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                 },
                 child: const Text('Register'),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                _message,
+                style: TextStyle(
+                  color: _success ? Colors.green : Colors.red,
+                ),
               ),
             ],
           ),

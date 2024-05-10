@@ -10,7 +10,9 @@ require('dotenv').config();
 let app = express();
 app.server = http.createServer(app);
 
-app.use(cors());
+app.use(cors({
+    origin: '*',
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

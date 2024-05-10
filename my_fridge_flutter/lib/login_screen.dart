@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_fridge_flutter/api/api_service.dart';
+import 'package:my_fridge_flutter/api/base_response.dart';
+import 'package:my_fridge_flutter/storage/secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,14 +12,30 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
   String _email = '';
   String _password = '';
+  String _message = '';
+  bool _success = false;
 
-  void _login() {
+  void _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      // Perform login logic here
-      print('Email: $_email, Password: $_password');
-      // Navigate to another screen or show a success message
+      try {
+        BaseResponse response = await _apiService.login(_email, _password);
+        String? accessToken = await getAccessToken();
+        setState(() {
+          _message = response.message;
+          _success = response.success;
+        });
+        if (response.success && accessToken != null) {
+          Navigator.pushNamed(context, '/home');
+        }
+      } catch (e) {
+        setState(() {
+          _message = 'An error occurred';
+          _success = false;
+        });
+      }
     }
   }
 
@@ -43,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value ?? '',
+                onChanged: (value) => _email = value,
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -55,18 +74,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) => _password = value ?? '',
+                onChanged: (value) => _password = value,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    _login();
+                    _login(context);
                   }
                 },
                 child: const Text('Login'),
               ),
+              const SizedBox(height: 20),
+              if (_success)
+                Text(
+                  _message,
+                  style: const TextStyle(color: Colors.red),
+                ),
             ],
           ),
         ),
