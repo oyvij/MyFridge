@@ -1,5 +1,6 @@
 #!/bin/bash
-flutter build web
+cd my_fridge_flutter && flutter build web
+cd ../
 cp -r build my_fridge_backend/build
 heroku git:remote -a my-fridge-backend
 git add .
