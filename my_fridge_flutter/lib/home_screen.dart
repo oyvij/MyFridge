@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_fridge_flutter/barcode_scanner_screen.dart';
+import 'package:my_fridge_flutter/components/barcode_scanner_custom.dart';
 import 'package:my_fridge_flutter/components/meal_scraper.dart';
 import 'package:my_fridge_flutter/components/my_kitchen.dart';
 
@@ -15,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     MyKitchen(),
+    BarcodeScannerScreen(),
     MealScraper()
   ];
 
@@ -35,6 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.kitchen),
             label: 'MyKitchen',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.barcode_reader),
+            label: 'Scanner',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

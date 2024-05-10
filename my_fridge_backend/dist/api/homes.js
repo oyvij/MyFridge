@@ -47,7 +47,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Home already exists.' });
+                            res.status(409).json({ message: 'Home already exists.', success: false });
                             _context.next = 12;
                             break;
 
@@ -56,7 +56,7 @@ exports.default = function (_ref) {
                             return _models.Home.create({ AccountId: AccountId });
 
                         case 11:
-                            res.json({ message: 'Home created.' });
+                            res.status(201).json({ message: 'Home created.', success: true });
 
                         case 12:
                             _context.next = 18;
@@ -67,7 +67,7 @@ exports.default = function (_ref) {
                             _context.t0 = _context['catch'](1);
 
                             console.error('Error creating home:', _context.t0);
-                            res.status(500).json({ message: 'Internal server error.' });
+                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 18:
                         case 'end':
@@ -112,12 +112,12 @@ exports.default = function (_ref) {
                         case 8:
                             homeItems = _context2.sent;
 
-                            res.json({ home: home, homeItems: homeItems });
+                            res.json({ home: home, homeItems: homeItems, success: true });
                             _context2.next = 13;
                             break;
 
                         case 12:
-                            res.json({ message: 'Home not found.' });
+                            res.status(204).json({ message: 'Home not found.', success: false });
 
                         case 13:
                             _context2.next = 19;
@@ -128,7 +128,7 @@ exports.default = function (_ref) {
                             _context2.t0 = _context2['catch'](1);
 
                             console.error('Error fetching home:', _context2.t0);
-                            res.status(500).json({ message: 'Internal server error.' });
+                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 19:
                         case 'end':
@@ -158,7 +158,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Invalid EAN.' });
+                            res.status(500).json({ message: 'Invalid EAN.', success: false });
                             return _context3.abrupt('return');
 
                         case 5:
@@ -242,7 +242,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Item already exists in home.' });
+                            res.status(409).json({ message: 'Item already exists in home.', success: false });
                             _context3.next = 37;
                             break;
 
@@ -251,14 +251,14 @@ exports.default = function (_ref) {
                             return _models.HomeItem.create({ HomeId: home.id, ItemId: item.id });
 
                         case 36:
-                            res.json({ message: 'Item added to home.' });
+                            res.status(200).json({ message: 'Item added to home.', success: true });
 
                         case 37:
                             _context3.next = 40;
                             break;
 
                         case 39:
-                            res.json({ message: 'Home not found.' });
+                            res.status(204).json({ message: 'Home not found.', success: false });
 
                         case 40:
                             _context3.next = 46;
@@ -269,7 +269,7 @@ exports.default = function (_ref) {
                             _context3.t0 = _context3['catch'](1);
 
                             console.error('Error adding item to home:', _context3.t0);
-                            res.status(500).json({ message: 'Internal server error.' });
+                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 46:
                         case 'end':
@@ -299,7 +299,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Invalid EAN.' });
+                            res.status(500).json({ message: 'Invalid EAN.', success: false });
                             return _context4.abrupt('return');
 
                         case 5:
@@ -314,7 +314,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Item not found.' });
+                            res.status(204).json({ message: 'Item not found.', success: false });
                             return _context4.abrupt('return');
 
                         case 11:
@@ -329,7 +329,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Home not found.' });
+                            res.status(204).json({ message: 'Home not found.', success: false });
                             return _context4.abrupt('return');
 
                         case 17:
@@ -344,7 +344,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Item not found in home.' });
+                            res.status(204).json({ message: 'Item not found in home.', success: false });
                             return _context4.abrupt('return');
 
                         case 23:
@@ -352,7 +352,7 @@ exports.default = function (_ref) {
                             return _models.HomeItem.destroy({ where: { id: existingHomeItem.id } });
 
                         case 25:
-                            res.json({ message: 'Item removed from home.' });
+                            res.status(200).json({ message: 'Item removed from home.', success: true });
 
                             _context4.next = 32;
                             break;
@@ -362,7 +362,7 @@ exports.default = function (_ref) {
                             _context4.t0 = _context4['catch'](1);
 
                             console.error('Error removing item from home:', _context4.t0);
-                            res.status(500).json({ message: 'Internal server error.' });
+                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 32:
                         case 'end':
@@ -393,7 +393,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.json({ message: 'Invalid EAN.' });
+                            res.status(500).json({ message: 'Invalid EAN.', success: false });
                             return _context6.abrupt('return');
 
                         case 5:
@@ -478,7 +478,7 @@ exports.default = function (_ref) {
                             homeItem = homeItems.find(function (homeItem) {
                                 return homeItem.ItemId === item.id;
                             });
-                            _response = { message: '', exactMatchHomeItem: null, similarItems: [], currentItem: item };
+                            _response = { message: '', exactMatchHomeItem: null, similarItems: [], currentItem: item, success: true };
 
                             if (homeItem) {
                                 _response.message = 'Item is in home.';
@@ -526,19 +526,19 @@ exports.default = function (_ref) {
                             if (_response.similarItems.length > 0) {
                                 _response.message = 'Item is not in home, but similar items were found.';
                             }
-                            res.json(_response);
+                            res.status(200).json(_response);
                             _context6.next = 43;
                             break;
 
                         case 42:
-                            res.json({ message: 'Home not found.' });
+                            res.status(204).json({ message: 'Home not found.', success: false });
 
                         case 43:
                             _context6.next = 46;
                             break;
 
                         case 45:
-                            res.json({ message: 'Item not found.' });
+                            res.status(204).json({ message: 'Item not found.', success: false });
 
                         case 46:
                             _context6.next = 52;
@@ -549,7 +549,7 @@ exports.default = function (_ref) {
                             _context6.t0 = _context6['catch'](1);
 
                             console.error('Error checking item in home:', _context6.t0);
-                            res.status(500).json({ message: 'Internal server error.' });
+                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 52:
                         case 'end':

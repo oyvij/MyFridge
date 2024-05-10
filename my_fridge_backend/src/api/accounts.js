@@ -80,8 +80,8 @@ export default ({ config }) => {
         }
     }));
 
-    api.post('/refresh_token', async (req, res) => {
-        const { refreshToken } = req.cookies;  // Assuming the refresh token is stored in cookies
+    api.post('/refresh-token', async (req, res) => {
+        const { refreshToken } = req.body;  // Assuming the refresh token is stored in cookies
         if (!refreshToken) return res.status(401).json({ message: "No refresh token provided.", success: false });
 
         try {
@@ -90,7 +90,7 @@ export default ({ config }) => {
             // Optionally check against a stored value in the database to ensure the refresh token is still valid
 
             const newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
-            res.json({ accessToken: newAccessToken });
+            res.json({ accessToken: newAccessToken, success: true });
         } catch (err) {
             return res.status(403).json({ message: "Invalid refresh token.", success: false });
         }
