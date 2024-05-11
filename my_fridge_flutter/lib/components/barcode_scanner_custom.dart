@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_fridge_flutter/api/api_service.dart';
 import 'package:my_fridge_flutter/api/item_matcher_response.dart';
-import 'package:my_fridge_flutter/components/barcode_scanner/barcode_shared.dart';
-import 'package:simple_barcode_scanner/enum.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class BarcodeScannerCustom extends StatefulWidget {
   const BarcodeScannerCustom({super.key});
@@ -18,6 +17,8 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
   bool _itemAdded = false;
 
   Future<void> _checkItemAndSetResponse(ean) async {
+    print('_checkItemAndSetResponse');
+
     setState(() {
       _isWorking = true;
     });
@@ -66,30 +67,30 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
     }
   }
 
+  bool _isEAN(String ean) {
+    print(ean.toString());
+    return ean.length == 13;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ExpansionTile(
-          title: const Text('Barcode Scanner'),
-          initiallyExpanded: true,
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: BarcodeScanner(
-                lineColor: '#ff6666',
-                cancelButtonText: 'Cancel',
-                scanType: ScanType.barcode,
-                isShowFlashIcon: false,
-                appBarTitle: '',
-                onScanned: (res) async {
-                  if (_isWorking) return;
-                  await _checkItemAndSetResponse(res);
-                },
-              ),
-            ),
-          ],
+        ElevatedButton(
+          onPressed: () async {
+            var res = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SimpleBarcodeScannerPage(),
+                ));
+            if (res is String) {
+              if (!_isWorking && _isEAN(res)) {
+                await _checkItemAndSetResponse(res);
+              }
+            }
+          },
+          child: const Text('Open Barcode Scanner'),
         ),
         if (itemMatcherResponse != null)
           itemMatcherResponse!.message == 'Item not found.'

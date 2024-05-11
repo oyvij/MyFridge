@@ -25,7 +25,7 @@ config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handle requests to the root URL
-app.use('/', express.static(path.join(__dirname, 'public', 'build', 'web')));
+app.use('/', express.static(path.join(__dirname, 'public', 'web')));
 
 app.use('/api', api({ config }));
 
