@@ -37,11 +37,6 @@ function createRoutes(dir, prefix = '/') {
         if (entry.isDirectory()) {
             const subPrefix = path.join(prefix, entry.name);
             createRoutes(fullPath, subPrefix);
-        } else {
-            // If the entry is a file, create a route for serving static files
-            const route = path.join(prefix, entry.name);
-            app.use(route, express.static(fullPath));
-            console.log(`Route created for ${route} => ${fullPath}`);
         }
     });
 }
