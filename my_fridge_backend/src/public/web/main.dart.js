@@ -85242,7 +85242,7 @@ n.f.Jf(B.Mp)}return A.G(null,r)}})
 return A.H($async$x8,r)},
 J(a){var s,r,q,p,o,n=this,m=null,l=t.p,k=A.b([A.a16(B.RF,new A.aeJ(n,a))],l),j=n.f
 if(j!=null){s=j.a
-if(s==="Item not found.")l=B.RN
+if(s==="Item not found.")l=B.RM
 else{r=j.e
 q=r==null?m:r.c
 q=A.dN("Scanned item: "+A.h(q),m,m,m,B.ez,m,m)
@@ -85333,7 +85333,7 @@ $S:490}
 A.y9.prototype={
 af(){return new A.Rl(B.i)}}
 A.Rl.prototype={
-J(a){return A.pa(A.q7(null,!1,null,B.RM),B.B_,null)}}
+J(a){return A.pa(A.q7(null,!1,null,B.RL),B.B_,null)}}
 A.yh.prototype={
 af(){return new A.RC(new A.nq(),new A.oa(null,"",!1),new A.po(B.kj,$.at()),A.b([],t.Ax),B.i)}}
 A.RC.prototype={
@@ -85382,7 +85382,7 @@ j=i.h(0,j.l4(k))
 j.toString
 J.dR(j,o)}}return i},
 J(a){var s,r,q,p,o=this,n=null,m=A.bw(a,n,t.w).w
-m=A.q7(A.b([new A.c6(B.iy,A.hC(A.aw1(!0,B.cW,!1,n,!0,B.a1,n,A.aNS(),o.f,n,n,n,n,n,2,A.auh(n,new A.id(4,A.aox(8),B.le),n,n,n,n,n,n,!0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"Search by name...",n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n),B.aA,!0,n,!0,n,!1,n,n,n,n,n,n,n,1,n,n,!1,"\u2022",n,new A.aiF(o),n,n,n,!1,n,!1,n,!0,n,B.mp,n,n,B.cK,B.bV,n,n,n,n,n,n,n,B.be,n,B.ys,n,n,n,n),n,m.a.a*0.6),n)],t.p),!1,n,B.RJ)
+m=A.q7(A.b([new A.c6(B.iy,A.hC(A.aw1(!0,B.cW,!1,n,!0,B.a1,n,A.aNS(),o.f,n,n,n,n,n,2,A.auh(n,new A.id(4,A.aox(8),B.le),n,n,n,n,n,n,!0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,"Search by name...",n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n),B.aA,!0,n,!0,n,!1,n,n,n,n,n,n,n,1,n,n,!1,"\u2022",n,new A.aiF(o),n,n,n,!1,n,!1,n,!0,n,B.mp,n,n,B.cK,B.bV,n,n,n,n,n,n,n,B.be,n,B.ys,n,n,n,n),n,m.a.a*0.6),n)],t.p),!1,n,B.RN)
 if(o.e.d!=null){s=o.Wt(o.r)
 s=s.ges(s).hC(0,new A.aiG(o,a),t.o0).ez(0)
 r=A.aq([null,0],t.LO,t.S)
@@ -85447,7 +85447,7 @@ return q.nP(A.aDU(null,B.G,!0,null,new A.aiB(this.a,this.c),r,null,s,B.yH,!0,t.y
 $S:494}
 A.aiB.prototype={
 $1(a){var s=null,r=this.b
-return new A.q5(B.RT,A.dN("Are you sure you want to remove "+A.h(r.f.b)+"?",s,s,s,s,s,s),A.b([A.AC(B.RS,new A.aiz(a),s),A.AC(B.RK,new A.aiA(this.a,r,a),s)],t.p),s)},
+return new A.q5(B.RT,A.dN("Are you sure you want to remove "+A.h(r.f.b)+"?",s,s,s,s,s,s),A.b([A.AC(B.RS,new A.aiz(a),s),A.AC(B.RJ,new A.aiA(this.a,r,a),s)],t.p),s)},
 $S:495}
 A.aiz.prototype={
 $0(){A.jc(this.a,!1).q6(!1)},
@@ -85616,7 +85616,7 @@ A.A4.prototype={
 af(){return new A.TV(B.i)}}
 A.TV.prototype={
 J(a){var s=null
-return A.pa(A.q7(s,!1,s,B.RL),A.ly(A.f3(A.b([B.Me,A.a16(B.RQ,new A.akE(this,a))],t.p),B.a6,B.an,B.aC),s,s),s)}}
+return A.pa(A.q7(s,!1,s,B.RK),A.ly(A.f3(A.b([B.Me,A.a16(B.RQ,new A.akE(this,a))],t.p),B.a6,B.an,B.aC),s,s),s)}}
 A.akE.prototype={
 $0(){A.Fw()
 A.Fx()
@@ -91809,12 +91809,12 @@ B.RE=new A.d0("The scanned item is in you kitchen.",null,B.ez,null,null,null,nul
 B.RF=new A.d0("Open Barcode Scanner",null,null,null,null,null,null,null,null)
 B.RH=new A.d0("Scan, find and organize items in your kitchen",null,null,null,null,null,null,null,null)
 B.RI=new A.d0("Already have an account?",null,null,null,null,null,null,null,null)
-B.RJ=new A.d0("Items in your kitchen",null,null,null,null,null,null,null,null)
-B.RK=new A.d0("Yes, remove it! \ud83d\uddd1\ufe0f",null,null,null,null,null,null,null,null)
-B.RL=new A.d0("Account, and Settings",null,null,null,null,null,null,null,null)
-B.RM=new A.d0("Ask for a meal recipe suggestion!",null,null,null,null,null,null,null,null)
-B.RN=new A.d0("Could not find or get item.",null,B.ez,null,null,null,null,null,null)
+B.RJ=new A.d0("Yes, remove it! \ud83d\uddd1\ufe0f",null,null,null,null,null,null,null,null)
+B.RK=new A.d0("Account, and Settings",null,null,null,null,null,null,null,null)
+B.RL=new A.d0("Ask for a meal recipe suggestion!",null,null,null,null,null,null,null,null)
+B.RM=new A.d0("Could not find or get item.",null,B.ez,null,null,null,null,null,null)
 B.ko=new A.d0("Register",null,null,null,null,null,null,null,null)
+B.RN=new A.d0("Mykitchen",null,null,null,null,null,null,null,null)
 B.kp=new A.d0("Login",null,null,null,null,null,null,null,null)
 B.RP=new A.d0("Don't have an account?",null,null,null,null,null,null,null,null)
 B.Pr=new A.o(!0,null,null,null,null,null,18,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)

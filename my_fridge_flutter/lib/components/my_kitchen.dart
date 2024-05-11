@@ -71,7 +71,7 @@ class _MyKitchenState extends State<MyKitchen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Items in your kitchen'),
+        title: const Text('Mykitchen'),
         automaticallyImplyLeading: false,
         actions: [
           Padding(
