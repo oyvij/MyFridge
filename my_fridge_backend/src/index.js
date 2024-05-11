@@ -21,29 +21,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
 
 // Serve static files from the build directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + "/public"));
 
 // Handle requests to the root URL
 app.get('/', (req, res) => {
     // Serve the index.html file from the build directory
     res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'index.html'));
 });
-
-app.get('/flutter.js', (req, res) => {
-    // Serve the index.html file from the build directory
-    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'flutter.js'));
-})
-
-app.get('/favicon.ico', (req, res) => {
-    // Serve the index.html file from the build directory
-    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'favicon.ico'));
-})
-
-app.get('/manifest.json', (req, res) => {
-    // Serve the index.html file from the build directory
-    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'manifest.json'));
-})
-
 
 
 app.use('/api', api({ config }));
