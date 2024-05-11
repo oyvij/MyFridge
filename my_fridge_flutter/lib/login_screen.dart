@@ -18,19 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   String _message = '';
   bool _success = false;
 
-  void _login(BuildContext context) async {
+  void _login(NavigatorState navigator) async {
     if (_formKey.currentState!.validate()) {
       try {
         BaseResponse response = await _apiService.login(_email, _password);
         String? accessToken = await getAccessToken();
-
-        if (response.success && accessToken != null) {
-          await Navigator.pushNamed(context, '/home');
-        }
         setState(() {
           _message = response.message;
           _success = response.success;
         });
+        if (response.success && accessToken != null) {
+          navigator.pushNamed('/home');
+        }
       } catch (e) {
         setState(() {
           _message = 'An error occurred';
@@ -82,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    _login(context);
+                    _login(Navigator.of(context));
                   }
                 },
                 child: const Text('Login'),
