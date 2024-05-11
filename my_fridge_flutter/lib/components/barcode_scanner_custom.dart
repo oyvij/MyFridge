@@ -26,7 +26,7 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
     setState(() {
       this.itemMatcherResponse = itemMatcherResponse;
       _isWorking = false;
-      _itemAdded = itemMatcherResponse.message == 'Item is in home.';
+      _itemAdded = itemMatcherResponse.exactMatchHomeItem?.id != null;
     });
   }
 
@@ -113,22 +113,19 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
                                 fit: BoxFit.contain,
                               )
                             : const Icon(Icons.image), // Placeholder icon
-                        trailing:
-                            itemMatcherResponse?.message != 'Item is in home.'
-                                ? !_itemAdded
-                                    ? IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () async {
-                                          await _addItemToHome();
-                                        },
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(Icons.remove),
-                                        onPressed: () async {
-                                          await _removeItemFromHome();
-                                        },
-                                      )
-                                : const SizedBox()),
+                        trailing: !_itemAdded
+                            ? IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () async {
+                                  await _addItemToHome();
+                                },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () async {
+                                  await _removeItemFromHome();
+                                },
+                              )),
                     const SizedBox(height: 20),
                     itemMatcherResponse?.message == 'Item is in home.'
                         ? Column(
