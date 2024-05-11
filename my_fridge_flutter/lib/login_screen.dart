@@ -23,13 +23,15 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         BaseResponse response = await _apiService.login(_email, _password);
         String? accessToken = await getAccessToken();
+
+        if (response.success && accessToken != null) {
+          navigator.pushNamed('/home');
+        }
+
         setState(() {
           _message = response.message;
           _success = response.success;
         });
-        if (response.success && accessToken != null) {
-          navigator.pushNamed('/home');
-        }
       } catch (e) {
         setState(() {
           _message = 'An error occurred';
