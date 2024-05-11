@@ -86,16 +86,19 @@ export default ({ config }) => {
 
         try {
             const payload = jwt.verify(refreshToken, config.refreshTokenSecret);
-            // Optionally check if the refresh token is in the database or a secure cache
-            // e.g., const token = await getRefreshToken(payload.id);
-            // if (!token) return res.status(403).json({ message: "Invalid refresh token.", success: false });
+            // Retrieve account details from the database using the payload
+            const account = await Account.findOne({ where: { id: payload.id } });
+            if (!account) return res.status(403).json({ message: "User not found.", success: false });
 
-            const accessToken = generateAccessToken(payload);
-            res.json({ accessToken, message: "Token refreshed.", success: true });
+            // Generate a new access token based on the retrieved account
+            const accessToken = generateAccessToken(account);
+            const newRefreshToken = generateRefreshToken(account);
+            res.json({ accessToken, refreshToken, message: "Token refreshed.", success: true });
         } catch (err) {
             return res.status(403).json({ message: "Invalid refresh token.", success: false });
         }
     });
+
 
     api.post('/validate-token', async (req, res) => {
         const { accessToken } = req.body;

@@ -13,8 +13,8 @@ class TokenResponse extends BaseResponse {
 
   factory TokenResponse.fromJson(Map<String, dynamic> json) {
     return TokenResponse(
-      accessToken: json['accessToken'],
-      refreshToken: json['refreshToken'],
+      accessToken: json['accessToken'] ?? '',
+      refreshToken: json['refreshToken'] ?? '',
       message: json['message'],
       success: json['success'] ?? false,
     );

@@ -9,15 +9,14 @@ import 'package:flutter/material.dart';
 
 class ApiService {
   // https://my-fridge-backend-8f9f809b9530.herokuapp.com/api --- http://localhost:5000/api
-  final baseUrl = 'https://my-fridge-backend-8f9f809b9530.herokuapp.com/api';
-  var headers = {'Content-Type': 'application/json', 'Authorization': ''};
+  final baseUrl = 'http://localhost:5000/api';
 
   Future<BaseResponse> registerAccount(
       String email, String password, String password2) async {
     try {
       var response = await http.post(
         Uri.parse('$baseUrl/accounts/register'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'email': email,
           'password': password,
@@ -35,7 +34,7 @@ class ApiService {
     try {
       var response = await http.post(
         Uri.parse('$baseUrl/accounts/login'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'email': email,
           'password': password,
@@ -43,8 +42,8 @@ class ApiService {
       );
       var data = jsonDecode(response.body);
       var tokenResponse = TokenResponse.fromJson(data);
-      storeAccessToken(tokenResponse.accessToken);
-      storeRefreshToken(tokenResponse.refreshToken);
+      await storeAccessToken(tokenResponse.accessToken);
+      await storeRefreshToken(tokenResponse.refreshToken);
       return BaseResponse.fromJson(data);
     } catch (e) {
       return BaseResponse(
@@ -59,7 +58,7 @@ class ApiService {
       var refreshToken = await getRefreshToken();
       var response = await http.post(
         Uri.parse('$baseUrl/accounts/refresh-token'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'refreshToken': refreshToken,
         }),
@@ -67,12 +66,12 @@ class ApiService {
       var data = jsonDecode(response.body);
       var tokenResponse = TokenResponse.fromJson(data);
       if (tokenResponse.success) {
-        storeAccessToken(tokenResponse.accessToken);
-      } else if (tokenResponse.message == 'Invalid refresh token.' ||
-          tokenResponse.message == 'No refresh token provided.') {
+        await storeAccessToken(tokenResponse.accessToken);
+        await storeRefreshToken(tokenResponse.refreshToken);
+      } else if (!tokenResponse.success) {
         await deleteAccessToken();
         await deleteRefreshToken();
-        Navigator.pushNamed(context, '/login');
+        await Navigator.pushNamed(context, '/');
       }
       return BaseResponse.fromJson(data);
     } catch (e) {
@@ -88,7 +87,7 @@ class ApiService {
       var refreshToken = await getRefreshToken();
       var response = await http.post(
         Uri.parse('$baseUrl/accounts/refresh-token'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'refreshToken': refreshToken,
         }),
@@ -96,9 +95,9 @@ class ApiService {
       var data = jsonDecode(response.body);
       var tokenResponse = TokenResponse.fromJson(data);
       if (tokenResponse.success) {
-        storeAccessToken(tokenResponse.accessToken);
-      } else if (tokenResponse.message == 'Invalid refresh token.' ||
-          tokenResponse.message == 'No refresh token provided.') {
+        await storeAccessToken(tokenResponse.accessToken);
+        await storeRefreshToken(tokenResponse.refreshToken);
+      } else if (!tokenResponse.success) {
         await deleteAccessToken();
         await deleteRefreshToken();
       }
@@ -116,7 +115,7 @@ class ApiService {
       var accessToken = await getAccessToken();
       var response = await http.post(
         Uri.parse('$baseUrl/accounts/validate-token'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'accessToken': accessToken,
         }),
@@ -131,17 +130,20 @@ class ApiService {
     }
   }
 
-  Future<void> updateHeaders() async {
+  Future<Map<String, String>> getUpdateHeaders() async {
     var accessToken = await getAccessToken();
-    headers['Authorization'] = 'Bearer $accessToken';
+    print('updated headers: $accessToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken'
+    };
   }
 
   Future<HomeResponse> getOrCreateHome(BuildContext context) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.get(
         Uri.parse('$baseUrl/homes'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
       );
     }
 
@@ -171,10 +173,9 @@ class ApiService {
 
   Future<BaseResponse> createHome(BuildContext context) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.post(
         Uri.parse('$baseUrl/homes/create'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
       );
     }
 
@@ -196,10 +197,9 @@ class ApiService {
 
   Future<BaseResponse> removeHomeItemById(BuildContext context, int id) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.delete(
         Uri.parse('$baseUrl/homes/remove-item-by-id'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'id': id,
         }),
@@ -224,10 +224,9 @@ class ApiService {
 
   Future<ItemMatcherResponse> checkItem(String ean) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.post(
         Uri.parse('$baseUrl/homes/check-item'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'ean': ean,
         }),
@@ -249,10 +248,9 @@ class ApiService {
   Future<BaseResponse> addItemToHomeByEan(
       BuildContext context, String ean) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.post(
         Uri.parse('$baseUrl/homes/add-item-by-ean'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'ean': ean,
         }),
@@ -278,10 +276,9 @@ class ApiService {
   Future<BaseResponse> removeItemFromHomeByEan(
       BuildContext context, String ean) async {
     Future<http.Response> performRequest() async {
-      await updateHeaders(); // Ensure headers are updated before making the request
       return http.delete(
         Uri.parse('$baseUrl/homes/remove-item-by-ean'),
-        headers: headers,
+        headers: await getUpdateHeaders(),
         body: jsonEncode({
           'ean': ean,
         }),
