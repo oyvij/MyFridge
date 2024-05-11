@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, 'public', 'build', 'web')))
 
-app.use('/icons', express.static(path.join(__dirname, 'public', 'build', 'web', 'icons', 'Icon-192.png')))
+app.use('/icons', express.static(path.join(__dirname, 'public', 'build', 'web', 'icons')))
 
 
 app.get('/icons/Icon-72.png', (req, res) => {
