@@ -1,4 +1,3 @@
-import { version } from '../../package.json';
 import { Router } from 'express';
 import items from './items';
 import accounts from './accounts';

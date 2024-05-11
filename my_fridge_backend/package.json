@@ -1,35 +1,16 @@
 {
-  "name": "node-express-es6-sqlite-api-server-starter",
+  "name": "my_fridge_backend",
   "version": "0.1.0",
-  "description": "A simple NodeJs starter template for creating ExpressJs based Api Server using SqlLite as backend. Uses ES6 with async+await through Babel.",
-  "main": "dist",
+  "description": "",
+  "main": "src/index.html",
   "engines": {
     "node": "v16.16.0"
   },
   "scripts": {
     "dev": "nodemon -w src --exec \"babel-node src \"",
-    "build": "babel src -s -D -d dist",
-    "start": "node dist",
-    "prestart": "npm run -s build",
+    "start": "babel-node src",
     "test": "eslint src"
   },
-  "eslintConfig": {
-    "extends": "eslint:recommended",
-    "parserOptions": {
-      "ecmaVersion": 7,
-      "sourceType": "module"
-    },
-    "env": {
-      "node": true
-    },
-    "rules": {
-      "no-console": 0,
-      "no-unused-vars": 1
-    }
-  },
-  "repository": "https://github.com/theskhan/node-express-es6-sqlite-api-server-starter.git",
-  "author": "Suhel Khan",
-  "license": "MIT",
   "keywords": [
     "nodejs",
     "es6",
