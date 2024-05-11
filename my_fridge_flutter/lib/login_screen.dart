@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
         String? accessToken = await getAccessToken();
 
         if (response.success && accessToken != null) {
-          navigator.pushNamed('/home');
+          await navigator.pushNamed('/home');
         }
 
         setState(() {

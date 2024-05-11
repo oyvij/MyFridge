@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 class ApiService {
   // https://my-fridge-backend-8f9f809b9530.herokuapp.com/api --- http://localhost:5000/api
-  final baseUrl = 'http://localhost:5000/api';
+  final baseUrl = 'https://my-fridge-backend-8f9f809b9530.herokuapp.com/api';
   var headers = {'Content-Type': 'application/json', 'Authorization': ''};
 
   Future<BaseResponse> registerAccount(
