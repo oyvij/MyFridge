@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
 
 // Serve static files from the build directory
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Handle requests to the root URL
 app.get('/', (req, res) => {
@@ -29,7 +29,17 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'index.html'));
 });
 
+app.use('/', express.static(path.join(__dirname, 'public', 'build', 'web')))
 
-app.use('/api', api({ config }));
-app.server.listen(process.env.PORT);
-console.log(`Started on port ${process.env.PORT}`);
+app.use('/icons', express.static(path.join(__dirname, 'public', 'build', 'web', 'icons', 'Icon-192.png')))
+
+
+app.get('/icons/Icon-72.png', (req, res) => {
+    // Serve the index.html file from the build directory
+    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'icons', 'Icon-72.png'));
+
+
+
+    app.use('/api', api({ config }));
+    app.server.listen(process.env.PORT);
+    console.log(`Started on port ${process.env.PORT}`);
