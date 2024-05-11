@@ -45,12 +45,6 @@ app.use('/manifest.json', express.static(path.join(__dirname, 'public', 'build',
 app.use('/icons', express.static(path.join(__dirname, 'public', 'build', 'web', 'icons')))
 
 
-app.get('/icons/Icon-72.png', (req, res) => {
-    // Serve the index.html file from the build directory
-    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'icons', 'Icon-72.png'));
-
-
-
-    app.use('/api', api({ config }));
-    app.server.listen(process.env.PORT);
-    console.log(`Started on port ${process.env.PORT}`);
+app.use('/api', api({ config }));
+app.server.listen(process.env.PORT);
+console.log(`Started on port ${process.env.PORT}`);
