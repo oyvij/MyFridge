@@ -26,12 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.success && accessToken != null) {
           await navigator.pushNamed('/home');
+        } else {
+          setState(() {
+            _message = response.message;
+            _success = response.success;
+          });
         }
-
-        setState(() {
-          _message = response.message;
-          _success = response.success;
-        });
       } catch (e) {
         setState(() {
           _message = 'An error occurred';
