@@ -83,6 +83,54 @@ class ApiService {
     }
   }
 
+  Future<BaseResponse> refreshToken_noNavigation() async {
+    try {
+      var refreshToken = await getRefreshToken();
+      var response = await http.post(
+        Uri.parse('$baseUrl/accounts/refresh-token'),
+        headers: headers,
+        body: jsonEncode({
+          'refreshToken': refreshToken,
+        }),
+      );
+      var data = jsonDecode(response.body);
+      var tokenResponse = TokenResponse.fromJson(data);
+      if (tokenResponse.success) {
+        storeAccessToken(tokenResponse.accessToken);
+      } else if (tokenResponse.message == 'Invalid refresh token.' ||
+          tokenResponse.message == 'No refresh token provided.') {
+        await deleteAccessToken();
+        await deleteRefreshToken();
+      }
+      return BaseResponse.fromJson(data);
+    } catch (e) {
+      return BaseResponse(
+        message: 'An error occurred',
+        success: false,
+      );
+    }
+  }
+
+  Future<BaseResponse> validateToken() async {
+    try {
+      var accessToken = await getAccessToken();
+      var response = await http.post(
+        Uri.parse('$baseUrl/accounts/validate-token'),
+        headers: headers,
+        body: jsonEncode({
+          'accessToken': accessToken,
+        }),
+      );
+      var data = jsonDecode(response.body);
+      return BaseResponse.fromJson(data);
+    } catch (e) {
+      return BaseResponse(
+        message: 'An error occurred',
+        success: false,
+      );
+    }
+  }
+
   Future<void> updateHeaders() async {
     var accessToken = await getAccessToken();
     headers['Authorization'] = 'Bearer $accessToken';

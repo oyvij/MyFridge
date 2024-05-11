@@ -96,6 +96,18 @@ export default ({ config }) => {
         }
     });
 
+    api.post('/validate-token', async (req, res) => {
+        const { accessToken } = req.body;
+        if (!accessToken) return res.status(401).json({ message: "No access token provided.", success: false });
+
+        try {
+            const payload = jwt.verify(accessToken, config.secret);
+            res.json({ message: "Token is valid.", success: true });
+        } catch (err) {
+            return res.status(403).json({ message: "Invalid access token.", success: false });
+        }
+    })
+
     return api;
 };
 

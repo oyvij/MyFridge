@@ -4,6 +4,8 @@ import 'package:my_fridge_flutter/components/barcode_scanner_custom.dart';
 import 'package:my_fridge_flutter/components/meal_scraper.dart';
 import 'package:my_fridge_flutter/components/my_kitchen.dart';
 
+import 'settings_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,7 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     MyKitchen(),
     BarcodeScannerScreen(),
-    MealScraper()
+    MealScraper(),
+    SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -44,8 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Scanner',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.restaurant),
             label: 'MealScraper',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
         currentIndex: _selectedIndex,

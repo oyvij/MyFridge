@@ -10,8 +10,12 @@ class MealScraper extends StatefulWidget {
 class _MealScraperState extends State<MealScraper> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ask for a meal recipe suggestion!'),
+        automaticallyImplyLeading: false,
+      ),
+      body: const Center(
         child: Text('Coming soon!'),
       ),
     );

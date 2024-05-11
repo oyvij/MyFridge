@@ -42,6 +42,10 @@ class _MyKitchenState extends State<MyKitchen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Items in you kitchen'),
+        automaticallyImplyLeading: false,
+      ),
       body: Center(
         child: _home.homeItems != null
             ? Column(

@@ -15,8 +15,12 @@ class BarcodeScannerScreen extends StatefulWidget {
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scan, find and organize items in your kitchen'),
+        automaticallyImplyLeading: false,
+      ),
+      body: const Center(
           child: Column(
         children: [
           BarcodeScannerCustom(),

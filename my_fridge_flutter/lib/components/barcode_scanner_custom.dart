@@ -17,8 +17,6 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
   bool _itemAdded = false;
 
   Future<void> _checkItemAndSetResponse(ean) async {
-    print('_checkItemAndSetResponse');
-
     setState(() {
       _isWorking = true;
     });
@@ -28,6 +26,7 @@ class _BarcodeScannerCustomState extends State<BarcodeScannerCustom> {
     setState(() {
       this.itemMatcherResponse = itemMatcherResponse;
       _isWorking = false;
+      _itemAdded = itemMatcherResponse.message == 'Item is in home.';
     });
   }
 
