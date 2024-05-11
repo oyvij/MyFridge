@@ -24,13 +24,15 @@ class _LoginScreenState extends State<LoginScreen> {
         BaseResponse response = await _apiService.login(_email, _password);
         String? accessToken = await getAccessToken();
 
-        if (response.success && accessToken != null) {
-          await navigator.pushNamed('/home');
-        } else {
+        if (!response.success) {
           setState(() {
             _message = response.message;
-            _success = response.success;
+            _success = false;
           });
+        }
+
+        if (response.success && accessToken != null) {
+          await navigator.pushNamed('/home');
         }
       } catch (e) {
         setState(() {
@@ -89,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('Login'),
               ),
               const SizedBox(height: 20),
-              if (_success)
+              if (!_success)
                 Text(
                   _message,
                   style: const TextStyle(color: Colors.red),
