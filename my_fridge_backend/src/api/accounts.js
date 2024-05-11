@@ -86,11 +86,12 @@ export default ({ config }) => {
 
         try {
             const payload = jwt.verify(refreshToken, config.refreshTokenSecret);
-            const accountId = payload.id;  // Extract user ID or other identifiers from the payload
-            // Optionally check against a stored value in the database to ensure the refresh token is still valid
+            // Optionally check if the refresh token is in the database or a secure cache
+            // e.g., const token = await getRefreshToken(payload.id);
+            // if (!token) return res.status(403).json({ message: "Invalid refresh token.", success: false });
 
-            const newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
-            res.json({ accessToken: newAccessToken, success: true });
+            const accessToken = generateAccessToken(payload);
+            res.json({ accessToken, message: "Token refreshed.", success: true });
         } catch (err) {
             return res.status(403).json({ message: "Invalid refresh token.", success: false });
         }
