@@ -24,26 +24,33 @@ config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
 // Serve static files from the build directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Handle requests to the root URL
-app.use('/', express.static(path.join(__dirname, 'public', 'build', 'web')));
+// Define a function to recursively traverse directories and create routes
+function createRoutes(dir, prefix = '/') {
+    // Get the list of files and directories in the current directory
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-/* app.use('/flutter.js', express.static(path.join(__dirname, 'public', 'build', 'web', 'flutter.js')))
+    // Iterate over each entry
+    entries.forEach(entry => {
+        const fullPath = path.join(dir, entry.name);
 
-app.use('/flutter_service_worker.js', express.static(path.join(__dirname, 'public', 'build', 'web', 'flutter_service_worker.js')));
+        // If the entry is a directory, recursively create routes
+        if (entry.isDirectory()) {
+            const subPrefix = path.join(prefix, entry.name);
+            createRoutes(fullPath, subPrefix);
+        } else {
+            // If the entry is a file, create a route for serving static files
+            const route = path.join(prefix, entry.name);
+            app.use(route, express.static(fullPath));
+            console.log(`Route created for ${route} => ${fullPath}`);
+        }
+    });
+}
 
-app.use('/main.dart.js', express.static(path.join(__dirname, 'public', 'build', 'web', 'main.dart.js')));
+// Root directory containing static files
+const rootDir = path.join(__dirname, 'public', 'build', 'web');
 
-app.use('/main.dart.js.map', express.static(path.join(__dirname, 'public', 'build', 'web', 'main.dart.js.map')));
-
-app.use('/favicon.png', express.static(path.join(__dirname, 'public', 'build', 'web', 'favicon.png')));
-
-
-app.use('/favicon.ico', express.static(path.join(__dirname, 'public', 'build', 'web', 'favicon.ico')))
-
-app.use('/manifest.json', express.static(path.join(__dirname, 'public', 'build', 'web', 'manifest.json'))) */
-
-app.use('/icons', express.static(path.join(__dirname, 'public', 'build', 'web', 'icons')))
-
+// Create routes for all directories and files within the root directory
+createRoutes(rootDir);
 
 app.use('/api', api({ config }));
 app.server.listen(process.env.PORT);
