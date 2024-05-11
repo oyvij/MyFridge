@@ -189,14 +189,14 @@ exports.default = function (_ref) {
         };
     }()));
 
-    api.post('/refresh_token', function () {
+    api.post('/refresh-token', function () {
         var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(req, res) {
             var refreshToken, payload, accountId, newAccessToken;
             return regeneratorRuntime.wrap(function _callee4$(_context4) {
                 while (1) {
                     switch (_context4.prev = _context4.next) {
                         case 0:
-                            refreshToken = req.cookies.refreshToken; // Assuming the refresh token is stored in cookies
+                            refreshToken = req.body.refreshToken; // Assuming the refresh token is stored in cookies
 
                             if (refreshToken) {
                                 _context4.next = 3;
@@ -213,7 +213,7 @@ exports.default = function (_ref) {
 
                             newAccessToken = jwt.sign({ id: accountId }, config.accessTokenSecret, { expiresIn: '24h' });
 
-                            res.json({ accessToken: newAccessToken });
+                            res.json({ accessToken: newAccessToken, success: true });
                             _context4.next = 13;
                             break;
 

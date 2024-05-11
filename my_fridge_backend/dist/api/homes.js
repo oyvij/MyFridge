@@ -112,12 +112,12 @@ exports.default = function (_ref) {
                         case 8:
                             homeItems = _context2.sent;
 
-                            res.json({ home: home, homeItems: homeItems, success: true });
+                            res.json({ home: home, homeItems: homeItems, message: "Found home", success: true });
                             _context2.next = 13;
                             break;
 
                         case 12:
-                            res.status(204).json({ message: 'Home not found.', success: false });
+                            res.status(404).json({ message: 'Home not found.', success: false });
 
                         case 13:
                             _context2.next = 19;
@@ -143,7 +143,7 @@ exports.default = function (_ref) {
         };
     }()));
 
-    api.post('/add-item', wrap(function () {
+    api.post('/add-item-by-ean', wrap(function () {
         var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(req, res) {
             var ean, item, response, data, product, categories, home, existingHomeItem;
             return regeneratorRuntime.wrap(function _callee3$(_context3) {
@@ -158,7 +158,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.status(500).json({ message: 'Invalid EAN.', success: false });
+                            res.status(400).json({ message: 'Invalid EAN.', success: false });
                             return _context3.abrupt('return');
 
                         case 5:
@@ -258,7 +258,7 @@ exports.default = function (_ref) {
                             break;
 
                         case 39:
-                            res.status(204).json({ message: 'Home not found.', success: false });
+                            res.status(404).json({ message: 'Home not found.', success: false });
 
                         case 40:
                             _context3.next = 46;
@@ -284,7 +284,7 @@ exports.default = function (_ref) {
         };
     }()));
 
-    api.post('/remove-item', wrap(function () {
+    api.delete('/remove-item-by-ean', wrap(function () {
         var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(req, res) {
             var ean, item, home, existingHomeItem;
             return regeneratorRuntime.wrap(function _callee4$(_context4) {
@@ -299,7 +299,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.status(500).json({ message: 'Invalid EAN.', success: false });
+                            res.status(400).json({ message: 'Invalid EAN.', success: false });
                             return _context4.abrupt('return');
 
                         case 5:
@@ -314,7 +314,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.status(204).json({ message: 'Item not found.', success: false });
+                            res.status(404).json({ message: 'Item not found.', success: false });
                             return _context4.abrupt('return');
 
                         case 11:
@@ -329,7 +329,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.status(204).json({ message: 'Home not found.', success: false });
+                            res.status(404).json({ message: 'Home not found.', success: false });
                             return _context4.abrupt('return');
 
                         case 17:
@@ -344,7 +344,7 @@ exports.default = function (_ref) {
                                 break;
                             }
 
-                            res.status(204).json({ message: 'Item not found in home.', success: false });
+                            res.status(404).json({ message: 'Item not found in home.', success: false });
                             return _context4.abrupt('return');
 
                         case 23:
@@ -377,46 +377,131 @@ exports.default = function (_ref) {
         };
     }()));
 
-    api.post('/check-item', wrap(function () {
-        var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(req, res) {
-            var ean, item, response, data, product, categories, home, homeItems, homeItem, _response, items, similarItems;
-
-            return regeneratorRuntime.wrap(function _callee6$(_context6) {
+    // remove item from kitchen by id
+    api.delete('/remove-item-by-id', wrap(function () {
+        var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(req, res) {
+            var id, homeItem, home, existingHomeItem;
+            return regeneratorRuntime.wrap(function _callee5$(_context5) {
                 while (1) {
-                    switch (_context6.prev = _context6.next) {
+                    switch (_context5.prev = _context5.next) {
                         case 0:
-                            ean = req.body.ean;
-                            _context6.prev = 1;
+                            id = req.body.id;
+                            _context5.prev = 1;
+                            _context5.next = 4;
+                            return _models.HomeItem.findOne({ where: { id: id } });
 
-                            if (!(ean.length !== 13 && ean.length !== 8)) {
-                                _context6.next = 5;
+                        case 4:
+                            homeItem = _context5.sent;
+
+                            if (homeItem) {
+                                _context5.next = 8;
                                 break;
                             }
 
-                            res.status(500).json({ message: 'Invalid EAN.', success: false });
-                            return _context6.abrupt('return');
+                            res.status(404).json({ message: 'Item not found.', success: false });
+                            return _context5.abrupt('return');
+
+                        case 8:
+                            _context5.next = 10;
+                            return _models.Home.findOne({ where: { AccountId: req.account.id } });
+
+                        case 10:
+                            home = _context5.sent;
+
+                            if (home) {
+                                _context5.next = 14;
+                                break;
+                            }
+
+                            res.status(404).json({ message: 'Home not found.', success: false });
+                            return _context5.abrupt('return');
+
+                        case 14:
+                            _context5.next = 16;
+                            return _models.HomeItem.findOne({ where: { HomeId: home.id, ItemId: homeItem.ItemId } });
+
+                        case 16:
+                            existingHomeItem = _context5.sent;
+
+                            if (existingHomeItem) {
+                                _context5.next = 20;
+                                break;
+                            }
+
+                            res.status(404).json({ message: 'Item not found in home.', success: false });
+                            return _context5.abrupt('return');
+
+                        case 20:
+                            _context5.next = 22;
+                            return _models.HomeItem.destroy({ where: { id: id } });
+
+                        case 22:
+                            res.status(200).json({ message: 'Item removed from home.', success: true });
+
+                            _context5.next = 29;
+                            break;
+
+                        case 25:
+                            _context5.prev = 25;
+                            _context5.t0 = _context5['catch'](1);
+
+                            console.error('Error removing item from home:', _context5.t0);
+                            res.status(500).json({ message: 'Internal server error.', success: false });
+
+                        case 29:
+                        case 'end':
+                            return _context5.stop();
+                    }
+                }
+            }, _callee5, undefined, [[1, 25]]);
+        }));
+
+        return function (_x9, _x10) {
+            return _ref6.apply(this, arguments);
+        };
+    }()));
+
+    api.post('/check-item', wrap(function () {
+        var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(req, res) {
+            var ean, item, response, data, product, categories, home, homeItems, homeItem, _response, items, similarItems;
+
+            return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                while (1) {
+                    switch (_context7.prev = _context7.next) {
+                        case 0:
+                            ean = req.body.ean;
+                            _context7.prev = 1;
+
+                            if (!(ean.length !== 13 && ean.length !== 8)) {
+                                _context7.next = 5;
+                                break;
+                            }
+
+                            res.status(400).json({ message: 'Invalid EAN.', success: false });
+                            return _context7.abrupt('return');
 
                         case 5:
-                            _context6.next = 7;
+                            _context7.next = 7;
                             return _models.Item.findOne({ where: { ean: ean } });
 
                         case 7:
-                            item = _context6.sent;
+                            item = _context7.sent;
 
                             if (!(!item || item.dataVersion !== config.dataVersion)) {
-                                _context6.next = 22;
+                                _context7.next = 29;
                                 break;
                             }
 
-                            _context6.next = 11;
+                            _context7.prev = 9;
+                            _context7.next = 12;
                             return config.kassalClient.get('/api/v1/products/ean/' + ean);
 
-                        case 11:
-                            response = _context6.sent;
+                        case 12:
+                            response = _context7.sent;
                             data = response && response.data && response.data.data || null;
 
                             if (!(data && data.products && data.products.length > 0)) {
-                                _context6.next = 22;
+                                _context7.next = 23;
                                 break;
                             }
 
@@ -426,15 +511,15 @@ exports.default = function (_ref) {
                             }).join(',');
 
                             if (!(item && item.dataVersion !== config.dataVersion)) {
-                                _context6.next = 19;
+                                _context7.next = 20;
                                 break;
                             }
 
-                            _context6.next = 19;
+                            _context7.next = 20;
                             return _models.Item.destroy({ where: { ean: ean } });
 
-                        case 19:
-                            _context6.next = 21;
+                        case 20:
+                            _context7.next = 22;
                             return _models.Item.create({
                                 ean: ean,
                                 name: product.name,
@@ -447,34 +532,45 @@ exports.default = function (_ref) {
                                 dataVersion: config.dataVersion
                             });
 
-                        case 21:
-                            item = _context6.sent;
-
                         case 22:
-                            if (!item) {
-                                _context6.next = 45;
-                                break;
-                            }
+                            item = _context7.sent;
 
-                            _context6.next = 25;
-                            return _models.Home.findOne({ where: { AccountId: req.account.id } });
+                        case 23:
+                            _context7.next = 29;
+                            break;
 
                         case 25:
-                            home = _context6.sent;
+                            _context7.prev = 25;
+                            _context7.t0 = _context7['catch'](9);
 
-                            if (!home) {
-                                _context6.next = 42;
+                            res.status(404).json({ message: 'Item not found.', success: false });
+                            return _context7.abrupt('return');
+
+                        case 29:
+                            if (!item) {
+                                _context7.next = 52;
                                 break;
                             }
 
-                            _context6.next = 29;
+                            _context7.next = 32;
+                            return _models.Home.findOne({ where: { AccountId: req.account.id } });
+
+                        case 32:
+                            home = _context7.sent;
+
+                            if (!home) {
+                                _context7.next = 49;
+                                break;
+                            }
+
+                            _context7.next = 36;
                             return _models.HomeItem.findAll({
                                 where: { HomeId: home.id }, // Assuming homeId is the correct column name
                                 include: [{ model: _models.Item }] // Ensure Item is associated in your model definitions
                             });
 
-                        case 29:
-                            homeItems = _context6.sent;
+                        case 36:
+                            homeItems = _context7.sent;
                             homeItem = homeItems.find(function (homeItem) {
                                 return homeItem.ItemId === item.id;
                             });
@@ -486,34 +582,34 @@ exports.default = function (_ref) {
                             } else {
                                 _response.message = 'Item is not in home.';
                             }
-                            _context6.next = 35;
+                            _context7.next = 42;
                             return Promise.all(homeItems.map(function () {
-                                var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(homeItem) {
-                                    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                                var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(homeItem) {
+                                    return regeneratorRuntime.wrap(function _callee6$(_context6) {
                                         while (1) {
-                                            switch (_context5.prev = _context5.next) {
+                                            switch (_context6.prev = _context6.next) {
                                                 case 0:
-                                                    _context5.next = 2;
+                                                    _context6.next = 2;
                                                     return _models.Item.findOne({ where: { id: homeItem.ItemId } });
 
                                                 case 2:
-                                                    return _context5.abrupt('return', _context5.sent);
+                                                    return _context6.abrupt('return', _context6.sent);
 
                                                 case 3:
                                                 case 'end':
-                                                    return _context5.stop();
+                                                    return _context6.stop();
                                             }
                                         }
-                                    }, _callee5, undefined);
+                                    }, _callee6, undefined);
                                 }));
 
-                                return function (_x11) {
-                                    return _ref7.apply(this, arguments);
+                                return function (_x13) {
+                                    return _ref8.apply(this, arguments);
                                 };
                             }()));
 
-                        case 35:
-                            items = _context6.sent;
+                        case 42:
+                            items = _context7.sent;
                             similarItems = items.filter(function (similarItem) {
                                 return similarItem.categories.split(',').some(function (category) {
                                     return item.categories.split(',').includes(category);
@@ -523,44 +619,44 @@ exports.default = function (_ref) {
                             _response.similarItems = similarItems.filter(function (similarItem) {
                                 return similarItem.ean !== item.ean;
                             });
-                            if (_response.similarItems.length > 0) {
+                            if (_response.similarItems.length > 0 && _response.message === 'Item is not in home.') {
                                 _response.message = 'Item is not in home, but similar items were found.';
                             }
                             res.status(200).json(_response);
-                            _context6.next = 43;
+                            _context7.next = 50;
                             break;
 
-                        case 42:
-                            res.status(204).json({ message: 'Home not found.', success: false });
+                        case 49:
+                            res.status(404).json({ message: 'Home not found.', success: false });
 
-                        case 43:
-                            _context6.next = 46;
+                        case 50:
+                            _context7.next = 53;
                             break;
-
-                        case 45:
-                            res.status(204).json({ message: 'Item not found.', success: false });
-
-                        case 46:
-                            _context6.next = 52;
-                            break;
-
-                        case 48:
-                            _context6.prev = 48;
-                            _context6.t0 = _context6['catch'](1);
-
-                            console.error('Error checking item in home:', _context6.t0);
-                            res.status(500).json({ message: 'Internal server error.', success: false });
 
                         case 52:
+                            res.status(404).json({ message: 'Item not found.', success: false });
+
+                        case 53:
+                            _context7.next = 58;
+                            break;
+
+                        case 55:
+                            _context7.prev = 55;
+                            _context7.t1 = _context7['catch'](1);
+
+                            //console.error('Error checking item in home:', error);
+                            res.status(500).json({ message: 'Internal server error.', success: false });
+
+                        case 58:
                         case 'end':
-                            return _context6.stop();
+                            return _context7.stop();
                     }
                 }
-            }, _callee6, undefined, [[1, 48]]);
+            }, _callee7, undefined, [[1, 55], [9, 25]]);
         }));
 
-        return function (_x9, _x10) {
-            return _ref6.apply(this, arguments);
+        return function (_x11, _x12) {
+            return _ref7.apply(this, arguments);
         };
     }()));
 

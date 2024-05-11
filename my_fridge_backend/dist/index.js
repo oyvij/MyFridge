@@ -30,6 +30,7 @@ var _kassalClient2 = _interopRequireDefault(_kassalClient);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var path = require('path');
 require('dotenv').config();
 
 var app = (0, _express2.default)();
@@ -43,6 +44,15 @@ app.use(_bodyParser2.default.json());
 app.use(_bodyParser2.default.urlencoded({ extended: false }));
 
 _config2.default.kassalClient = (0, _kassalClient2.default)(process.env.KASSAL_API_KEY);
+
+// Serve static files from the build directory
+app.use(_express2.default.static(path.join(__dirname, 'web')));
+
+// Handle requests to the root URL
+app.get('/', function (req, res) {
+    // Serve the index.html file from the build directory
+    res.sendFile(path.join(__dirname, 'web', 'index.html'));
+});
 
 app.use('/api', (0, _api2.default)({ config: _config2.default }));
 app.server.listen(process.env.PORT);
