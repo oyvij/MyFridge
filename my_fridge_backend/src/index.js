@@ -21,7 +21,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
 
 // Serve static files from the build directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path, stat) => {
+        if (path.endsWith('.js')) {
+            res.set('Content-Type', 'text/javascript');
+        }
+    },
+}));
 
 // Handle requests to the root URL
 app.get('/', (req, res) => {
