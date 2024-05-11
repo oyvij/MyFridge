@@ -29,6 +29,23 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'index.html'));
 });
 
+app.get('/flutter.js', (req, res) => {
+    // Serve the index.html file from the build directory
+    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'flutter.js'));
+})
+
+app.get('/favicon.ico', (req, res) => {
+    // Serve the index.html file from the build directory
+    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'favicon.ico'));
+})
+
+app.get('/manifest.json', (req, res) => {
+    // Serve the index.html file from the build directory
+    res.sendFile(path.join(__dirname, 'public', 'build', 'web', 'manifest.json'));
+})
+
+
+
 app.use('/api', api({ config }));
 app.server.listen(process.env.PORT);
 console.log(`Started on port ${process.env.PORT}`);
