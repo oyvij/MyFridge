@@ -5,7 +5,6 @@ import bodyParser from 'body-parser';
 import api from './api';
 import config from './config.json';
 import kassalClient from './clients/kassalClient';
-const path = require('path');
 require('dotenv').config();
 
 let app = express();
@@ -19,15 +18,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
-
-// Serve static files from the build directory
-app.use(express.static(path.join(__dirname, 'build', 'web')));
-
-// Handle requests to the root URL
-app.get('/', (req, res) => {
-    // Serve the index.html file from the build directory
-    res.sendFile(path.join(__dirname, 'build', 'web', 'index.html'));
-});
 
 app.use('/api', api({ config }));
 app.server.listen(process.env.PORT);

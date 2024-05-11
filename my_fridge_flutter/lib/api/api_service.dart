@@ -8,8 +8,8 @@ import 'package:my_fridge_flutter/storage/secure_storage.dart';
 import 'package:flutter/material.dart';
 
 class ApiService {
-  // https://my-fridge-backend-8f9f809b9530.herokuapp.com/api --- http://localhost:5000/api
-  final baseUrl = 'http://localhost:5000/api';
+  final baseUrl = const String.fromEnvironment('API_URL',
+      defaultValue: 'http://localhost:5000/api');
   var headers = {'Content-Type': 'application/json', 'Authorization': ''};
 
   Future<BaseResponse> registerAccount(
