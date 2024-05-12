@@ -109,7 +109,7 @@ class _MyKitchenState extends State<MyKitchen> {
                           entry.key,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ),
@@ -170,7 +170,7 @@ class _MyKitchenState extends State<MyKitchen> {
                                     item.item?.name ?? '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
@@ -181,7 +181,7 @@ class _MyKitchenState extends State<MyKitchen> {
                                     item.item?.description ?? '',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         color: Colors.black87),
                                   ),
                                 ),
