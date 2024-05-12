@@ -85374,7 +85374,7 @@ Wt(a){var s,r,q,p,o,n,m,l,k=A.A(t.N,t.pb)
 for(s=a.length,r=t.Ax,q=0;q<a.length;a.length===s||(0,A.L)(a),++q){p=a[q]
 o=p.f.x
 n=(o==null?"Others":o).split(",")
-if(n.length!==0){m=J.aCB(n[0])+"}"
+if(n.length!==0){m=J.aCB(n[0])
 if(!k.ak(0,m))k.n(0,m,A.b([],r))
 l=k.h(0,m)
 l.toString

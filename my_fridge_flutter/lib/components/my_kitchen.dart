@@ -59,7 +59,7 @@ class _MyKitchenState extends State<MyKitchen> {
       String categories = item.item?.categories ?? 'Others';
       List<String> categorySegments = categories.split(',');
       if (categorySegments.isNotEmpty) {
-        String abstractedCategory = '${categorySegments[0].trim()}}';
+        String abstractedCategory = categorySegments[0].trim();
         if (!groupedItems.containsKey(abstractedCategory)) {
           groupedItems[abstractedCategory] = [];
         }
