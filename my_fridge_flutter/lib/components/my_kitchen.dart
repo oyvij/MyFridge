@@ -156,34 +156,40 @@ class _MyKitchenState extends State<MyKitchen> {
                             },
                             onDismissed: (direction) async {},
                             child: ExpansionTile(
-                              title: Row(
-                                children: [
-                                  if (item.item?.image != null)
-                                    Image.network(
-                                      item.item!.image!,
-                                      width: 40, // Adjust the width as needed
-                                      height: 40, // Adjust the height as needed
-                                      fit: BoxFit.contain,
+                              title: Flexible(
+                                child: Row(
+                                  children: [
+                                    if (item.item?.image != null)
+                                      Image.network(
+                                        item.item!.image!,
+                                        width: 40, // Adjust the width as needed
+                                        height:
+                                            40, // Adjust the height as needed
+                                        fit: BoxFit.contain,
+                                      ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        item.item?.name ?? '',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    item.item?.name ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               children: [
                                 ListTile(
                                   title: Text(
                                     item.item?.description ?? '',
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 12,
-                                        color: Colors.black87),
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12,
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                 ),
                                 // Add more information here if needed
