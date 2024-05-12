@@ -56,13 +56,13 @@ class _MyKitchenState extends State<MyKitchen> {
   Map<String, List<HomeItem>> groupItemsByCategory(List<HomeItem> items) {
     Map<String, List<HomeItem>> groupedItems = {};
     for (var item in items) {
-      List<String> categories = item.item?.categories?.split(',') ?? [];
-      for (var category in categories) {
-        if (!groupedItems.containsKey(category.trim())) {
-          groupedItems[category.trim()] = [];
-        }
-        groupedItems[category.trim()]!.add(item);
+      String categories = item.item?.categories == ''
+          ? 'Others'
+          : item.item?.categories ?? 'Others';
+      if (!groupedItems.containsKey(categories.trim())) {
+        groupedItems[categories.trim()] = [];
       }
+      groupedItems[categories.trim()]!.add(item);
     }
     return groupedItems;
   }
