@@ -58,9 +58,8 @@ class _MyKitchenState extends State<MyKitchen> {
     for (var item in items) {
       String categories = item.item?.categories ?? 'Others';
       List<String> categorySegments = categories.split(',');
-      if (categorySegments.length >= 2) {
-        String abstractedCategory =
-            '${categorySegments[0].trim()}, ${categorySegments[1].trim()}';
+      if (categorySegments.isNotEmpty) {
+        String abstractedCategory = '${categorySegments[0].trim()}}';
         if (!groupedItems.containsKey(abstractedCategory)) {
           groupedItems[abstractedCategory] = [];
         }
