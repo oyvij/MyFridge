@@ -171,8 +171,8 @@ class _MyKitchenState extends State<MyKitchen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
