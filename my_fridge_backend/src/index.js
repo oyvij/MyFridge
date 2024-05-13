@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import api from './api';
 import config from './config.json';
 import kassalClient from './clients/kassalClient';
+import openAiClient from './clients/openAiClient';
 import e from 'express';
 const path = require('path');
 require('dotenv').config();
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 config.kassalClient = kassalClient(process.env.KASSAL_API_KEY)
+config.openAiClient = openAiClient();
 
 // Serve static files from the build directory
 app.use(express.static(path.join(__dirname, 'public')));

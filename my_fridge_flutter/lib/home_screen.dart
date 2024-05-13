@@ -33,33 +33,36 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'MyKitchen',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.barcode_reader),
-            label: 'Scanner',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'MealScraper',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue[800],
-        unselectedItemColor: Colors.grey[600],
-        onTap: _onItemTapped,
-      ),
-    );
+        body: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
+        ),
+        bottomNavigationBar: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.kitchen),
+                  label: 'MyKitchen',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.barcode_reader),
+                  label: 'Scanner',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.restaurant),
+                  label: 'MealScraper',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  label: 'Settings',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.blue[800],
+              unselectedItemColor: Colors.grey[600],
+              onTap: _onItemTapped,
+              elevation: 0,
+            )));
   }
 }

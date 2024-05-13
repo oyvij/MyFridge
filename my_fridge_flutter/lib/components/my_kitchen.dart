@@ -168,14 +168,13 @@ class _MyKitchenState extends State<MyKitchen> {
                                       fit: BoxFit.contain,
                                     ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    item.item?.name ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  Flexible(
+                                    child: Text(item.item?.name ?? '',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        )),
+                                  )
                                 ],
                               ),
                               children: [

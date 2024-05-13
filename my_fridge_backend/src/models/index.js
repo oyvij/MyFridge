@@ -15,6 +15,10 @@ const Account = sequelize.define('Account', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    hasMealScraperAccess: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 });
 
