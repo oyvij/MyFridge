@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:my_fridge_flutter/api/base_response.dart';
 
 class MealRecipeResponse extends BaseResponse {
@@ -62,5 +63,16 @@ class Ingredient {
       description: json['description'],
       image: json['image'],
     );
+  }
+}
+
+class MealModel with ChangeNotifier {
+  MealRecipeResponse? _mealRecipeResponse;
+
+  MealRecipeResponse? get mealRecipeResponse => _mealRecipeResponse;
+
+  void updateMealRecipeResponse(MealRecipeResponse newResponse) {
+    _mealRecipeResponse = newResponse;
+    notifyListeners();
   }
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:my_fridge_flutter/api/api_service.dart';
 import 'package:my_fridge_flutter/api/base_response.dart';
+import 'package:my_fridge_flutter/api/meal_recipe_response.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Check logged in status
 Future<bool> checkAuth() async {
@@ -20,25 +22,31 @@ Future<bool> checkAuth() async {
 }
 
 void main() async {
-// handle exceptions caused by making main async
   WidgetsFlutterBinding.ensureInitialized();
-
-  // init a shared preferences variable
   SharedPreferences prefs = await SharedPreferences.getInstance();
-
   bool hasAuth = await checkAuth();
 
-  String initialRoute = hasAuth ? '/home' : '/';
+  runApp(MyApp(hasAuth: hasAuth));
+}
 
-  Widget app = MaterialApp(
-    title: 'Flutter Login App',
-    initialRoute: initialRoute,
-    routes: {
-      '/': (context) => const LoginScreen(),
-      '/register': (context) => const RegisterScreen(),
-      '/home': (context) => const HomeScreen()
-    },
-  );
+class MyApp extends StatelessWidget {
+  final bool hasAuth;
 
-  runApp(app);
+  const MyApp({super.key, required this.hasAuth});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => MealModel(),
+      child: MaterialApp(
+        title: 'Flutter Login App',
+        initialRoute: hasAuth ? '/home' : '/',
+        routes: {
+          '/': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/home': (context) => const HomeScreen()
+        },
+      ),
+    );
+  }
 }
