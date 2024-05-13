@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:my_fridge_flutter/api/base_response.dart';
 import 'package:my_fridge_flutter/api/home_response.dart';
 import 'package:my_fridge_flutter/api/item_matcher_response.dart';
+import 'package:my_fridge_flutter/api/meal_recipe_response.dart';
 import 'package:my_fridge_flutter/api/token_response.dart';
 import 'package:my_fridge_flutter/storage/secure_storage.dart';
 import 'package:flutter/material.dart';
@@ -295,6 +296,30 @@ class ApiService {
       return BaseResponse.fromJson(data);
     } catch (e) {
       return BaseResponse(
+        message: 'An error occurred',
+        success: false,
+      );
+    }
+  }
+
+  Future<MealRecipeResponse> scrapeMealRecipe(String type, bool strict) async {
+    Future<http.Response> performRequest() async {
+      return http.post(
+        Uri.parse('$baseUrl/meals/scrape'),
+        headers: await getUpdateHeaders(),
+        body: jsonEncode({
+          'type': type,
+          'strict': strict,
+        }),
+      );
+    }
+
+    try {
+      var response = await performRequest();
+      var data = jsonDecode(response.body);
+      return MealRecipeResponse.fromJson(data);
+    } catch (e) {
+      return MealRecipeResponse(
         message: 'An error occurred',
         success: false,
       );
