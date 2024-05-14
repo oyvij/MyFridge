@@ -81,17 +81,17 @@ export default ({ config }) => {
         where: { HomeId: home.id },
         include: [{ model: Item }]
       });
-      const availableItems = shuffle(homeItems.map(homeItem => `"${homeItem.Item.name}, 'which is of category ${homeItem.Item.category !== '' ? homeItem.Item.category : 'unknown, use the name or description instead'}, and is described as ${homeItem.Item.description != '' ? homeItem.Item.description : 'unknown, use either the name or category instead'}"`));
+      const availableItems = shuffle(homeItems.map(homeItem => homeItem.Item));
 
       const completion = await openAiClient.chat.completions.create({
         messages: [
           {
             "role": "system",
-            "content": `You are a helpful assistant and chef designed to output JSON. Based on the ingredients the user has, suggest a delicious meals. The user will provide what type of meal they want. Only recommend a single meal in each response. Responses should be in a clear, structured format with headings, lists, and step-by-step instructions in English. Be prepared that the ingredients name, description, and category might not be in english, so you need to interpret what type of ingredient it is by using the category. Sometimes the name of the ingredient/item does not describe what the ingredient/item is. You must understand what the ingredient is by interpret all name, description and category.  Strucutre the output as json in the same format as described in this jsonschema: ${JSON.stringify(mealJsonStructureTemplate, null, 2)}. Please use the data from the ingredients to populate the description in the meal json template. Also, please use the provided ingredients which mostly fits with the desired mealtype. ${strict ? 'You can not use ingredients not available.' : ''}. Also, try your best to ue common sense to determine what ingredients/items fit the mealtype. The mealtype must be ${type}`
+            "content": `You are a helpful assistant and chef designed to output JSON. Based on the ingredients the user has, suggest a delicious meals. The user will provide what type of meal they want. Only recommend a single meal in each response. Responses should be in a clear, structured format with headings, lists, and step-by-step instructions in English. The items/ingredients the user provide will be in a json format. Be prepared that the ingredients name, description, and category might not be in english, so you need to interpret what type of ingredient it is by using the category or description, but do NOT translate the ingredients from its original language to english when creating the response!. Keep the same structure as they were provided. Sometimes the name of the ingredient/item does not describe what the ingredient/item is. You must understand what the ingredient is by interpret all name, description and category.  Strucutre the output as json in the same format as described in this jsonschema: ${JSON.stringify(mealJsonStructureTemplate, null, 2)}. Please use the data from the ingredients to populate the description in the meal json template. Also, please use the provided ingredients which mostly fits with the desired mealtype. ${strict ? 'You can not use ingredients not available.' : ''}. Also, try your best to ue common sense to determine what ingredients/items fit the mealtype. The mealtype must be ${type}`
           },
           {
             "role": "user",
-            "content": `I have these ingredients available: ${JSON.stringify(availableItems, null, 2)}. What can I make for ${type}${strict ? ' without using any other ingredients than the ones I have provided? This is very important! You can NOT use items or ingredients I dont have!' : '?'} The Mealtype must be ${type}`
+            "content": `I have these ingredients available: \n\n ${JSON.stringify(availableItems, null, 2)} \n\n What can I make for ${type}${strict ? ' without using any other ingredients than the ones I have provided? This is very important! You can NOT use items or ingredients I dont have!' : '?'} The Mealtype must be ${type}`
           }
         ],
         response_format: { type: "json_object" },
