@@ -44,6 +44,22 @@ const mealJsonStructureTemplate = {
   "required": ["title", "mealtype", "description", "ingredients", "steps"]
 }
 
+function shuffle(array) {
+  let currentIndex = array.length;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+
+    // Pick a remaining element...
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+}
+
 
 export default ({ config }) => {
   let api = Router().use(jwtAuth);
@@ -65,22 +81,18 @@ export default ({ config }) => {
         where: { HomeId: home.id },
         include: [{ model: Item }]
       });
-      const availableItems = homeItems.map(homeItem => homeItem.Item);
+      const availableItems = shuffle(homeItems.map(homeItem => `"${homeItem.Item.name}, 'which is of category ${homeItem.Item.category !== '' ? homeItem.Item.category : 'unknown, use the name or description instead'}, and is described as ${homeItem.Item.description != '' ? homeItem.Item.description : 'unknown, use either the name or category instead'}"`));
 
       const completion = await openAiClient.chat.completions.create({
         messages: [
           {
             "role": "system",
-            "content": `You are a helpful assistant and chef designed to output JSON. Based on the ingredients the user has, suggest simple and delicious meals. The user will provide what type of meal they want. Only recommend a single meal in each response. Responses should be in a clear, structured format with headings, lists, and step-by-step instructions in Norwegian. Strucutre the output as json in the same format as described in this jsonschema: ${JSON.stringify(mealJsonStructureTemplate, null, 2)}. Please use the data from the ingredients to populate the description in the meal json template. Also, please use the provided ingredients which mostly fits with the desired mealtype. ${strict ? 'You can not use ingredients not available.' : ''}`
-          },
-          {
-            "role": "assistant",
-            "content": "I can help you create a meal. List the ingredients you have, and I'll guide you through the steps."
+            "content": `You are a helpful assistant and chef designed to output JSON. Based on the ingredients the user has, suggest a delicious meals. The user will provide what type of meal they want. Only recommend a single meal in each response. Responses should be in a clear, structured format with headings, lists, and step-by-step instructions in English. Be prepared that the ingredients name, description, and category might not be in english, so you need to interpret what type of ingredient it is by using the category. Sometimes the name of the ingredient/item does not describe what the ingredient/item is. You must understand what the ingredient is by interpret all name, description and category.  Strucutre the output as json in the same format as described in this jsonschema: ${JSON.stringify(mealJsonStructureTemplate, null, 2)}. Please use the data from the ingredients to populate the description in the meal json template. Also, please use the provided ingredients which mostly fits with the desired mealtype. ${strict ? 'You can not use ingredients not available.' : ''}. Also, try your best to ue common sense to determine what ingredients/items fit the mealtype. The mealtype must be ${type}`
           },
           {
             "role": "user",
             "content": `I have these ingredients available: ${JSON.stringify(availableItems, null, 2)}. What can I make for ${type}${strict ? ' without using any other ingredients?' : '?'} The Mealtype must be ${type}`
-          },
+          }
         ],
         response_format: { type: "json_object" },
         model: "gpt-3.5-turbo",
