@@ -91,7 +91,7 @@ export default ({ config }) => {
           },
           {
             "role": "user",
-            "content": `I have these ingredients available: ${JSON.stringify(availableItems, null, 2)}. What can I make for ${type}${strict ? ' without using any other ingredients?' : '?'} The Mealtype must be ${type}`
+            "content": `I have these ingredients available: ${JSON.stringify(availableItems, null, 2)}. What can I make for ${type}${strict ? ' without using any other ingredients than the ones I have provided? This is very important! You can NOT use items ingredients I dont have!' : '?'} The Mealtype must be ${type}`
           }
         ],
         response_format: { type: "json_object" },
